@@ -1,7 +1,6 @@
 /* ==========================================================================
  * bootstrap-datepicker.js
- * A Bootstrap-powered datepicker focused on usability, simplicity, and
- * extensibility.
+ * A lightweight Bootstrap-powered datepicker focused on usability and extensibility.
  * https://github.com/schreifels/removeable-bootstrap-datepicker
  * ==========================================================================
  * Based on Stefan Petre's bootstrap-datepicker (http://www.eyecon.ro/bootstrap-datepicker)
@@ -81,7 +80,7 @@
     this.showMode();
   };
 
-  Datepicker.prototype.show = function(e) {
+  Datepicker.prototype.show = function(e) { // ok
     this.picker.show();
     this.height = this.component ? this.component.outerHeight() : this.element.outerHeight();
     this.place();
@@ -105,7 +104,7 @@
     });
   };
 
-  Datepicker.prototype.hide = function() {
+  Datepicker.prototype.hide = function() { // ok
     this.picker.hide();
     $(window).off('resize', this.place);
     this.viewMode = this.startViewMode;
