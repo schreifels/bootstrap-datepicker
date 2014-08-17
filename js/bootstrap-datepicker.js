@@ -35,18 +35,17 @@
 							});
 		this.isInput = this.element.is('input');
 		this.component = this.element.is('.date') ? this.element.find('.add-on') : false;
+		this.events = [];
 
 		if (this.isInput) {
-			this.element.on({
-				focus: $.proxy(this.show, this),
-				//blur: $.proxy(this.hide, this),
-				keyup: $.proxy(this.update, this)
-			});
+			this.bindEvent(this.element, 'focus', $.proxy(this.show, this));
+			// this.bindEvent(this.element, 'blur', $.proxy(this.hide, this));
+			this.bindEvent(this.element, 'keyup', $.proxy(this.update, this));
 		} else {
 			if (this.component){
-				this.component.on('click', $.proxy(this.show, this));
+				this.bindEvent(this.component, 'click', $.proxy(this.show, this));
 			} else {
-				this.element.on('click', $.proxy(this.show, this));
+				this.bindEvent(this.element, 'click', $.proxy(this.show, this));
 			}
 		}
 
@@ -126,6 +125,14 @@
 			this.element.trigger({
 				type: 'hide',
 				date: this.date
+			});
+		},
+
+		remove: function() {
+			this.hide();
+			this.picker.remove();
+			$.each(this.events, function(index, e) {
+				e[0].off(e[1], e[2]);
 			});
 		},
 
@@ -332,6 +339,11 @@
 				this.viewMode = Math.max(this.minViewMode, Math.min(2, this.viewMode + dir));
 			}
 			this.picker.find('>div').hide().filter('.datepicker-'+DPGlobal.modes[this.viewMode].clsName).show();
+		},
+
+		bindEvent: function($el, event, handler) {
+			$el.on(event, handler);
+			this.events.push([$el, event, handler]);
 		}
 	};
 
