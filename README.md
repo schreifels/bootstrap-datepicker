@@ -1,11 +1,12 @@
-# removeable-bootstrap-datepicker
+# bootstrap-datepicker
 
-This is a fork of Stefan Petre's [bootstrap-datepicker](http://www.eyecon.ro/bootstrap-datepicker/) that adds a new method:
+This is a fork of Stefan Petre's [bootstrap-datepicker](http://www.eyecon.ro/bootstrap-datepicker/). There are a few improvements over the original:
 
-**.datepicker('remove')**
+* A new **remove** method, which removes datepicker events and DOM elements
+* The code has been cleaned up for consistency, readability, and extensibility
 
-which removes datepicker events and elements from the DOM.
+See the [changelog](CHANGELOG.md) for specifics.
 
 ## Why?
 
-eternicode has [another popular fork](https://github.com/eternicode/bootstrap-datepicker) of Petre's code that adds a remove method, but it is much more feature-rich, and the codebase is nearly 3x the size of the original.
+There is already a [popular fork](https://github.com/eternicode/bootstrap-datepicker) of Petre's code, but it is three times the size of the original library. I'd like to improve the quality of the library without increasing complexity or file size.

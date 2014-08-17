@@ -1,11 +1,11 @@
-/* =========================================================
- * removeable-bootstrap-datepicker.js
- * A fork of Stefan Petre's bootstrap-datepicker that adds a remove method
- *
- * Original: http://www.eyecon.ro/bootstrap-datepicker
- * Fork: https://github.com/schreifels/removeable-bootstrap-datepicker
- * =========================================================
- * Created by Stefan Petre with a tweak by Michael Schreifels
+/* ==========================================================================
+ * bootstrap-datepicker.js
+ * A Bootstrap-powered datepicker focused on usability, simplicity, and
+ * extensibility.
+ * https://github.com/schreifels/removeable-bootstrap-datepicker
+ * ==========================================================================
+ * Based on Stefan Petre's bootstrap-datepicker (http://www.eyecon.ro/bootstrap-datepicker)
+ * Updated and maintained by Mike Schreifels
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * ========================================================= */
+ * ========================================================================== */
 
 (function($) {
 
@@ -94,7 +94,8 @@
     }
     var that = this;
     $(document).on('mousedown', function(ev) {
-      if ($(ev.target).closest('.datepicker').length == 0) {
+      var $target = $(ev.target);
+      if ((!that.isInput || !$target.is(that.element)) && $target.closest('.datepicker').length === 0) {
         that.hide();
       }
     });
