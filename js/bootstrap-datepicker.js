@@ -27,19 +27,13 @@
   var Datepicker = function(element, options){
     this.element = $(element);
     this.format = DPGlobal.parseFormat(options.format||this.element.data('date-format')||'mm/dd/yyyy');
-    this.picker = $(DPGlobal.template)
-              .appendTo('body')
-              .on({
-                click: $.proxy(this.click, this)//,
-                //mousedown: $.proxy(this.mousedown, this)
-              });
+    this.picker = $(DPGlobal.template).appendTo('body').on('click', $.proxy(this.click, this));
     this.isInput = this.element.is('input');
     this.component = this.element.is('.date') ? this.element.find('.add-on') : false;
     this.events = [];
 
     if (this.isInput) {
       this.bindEvent(this.element, 'focus', $.proxy(this.show, this));
-      // this.bindEvent(this.element, 'blur', $.proxy(this.hide, this));
       this.bindEvent(this.element, 'keyup', $.proxy(this.update, this));
     } else {
       if (this.component){
@@ -121,7 +115,6 @@
       if (!this.isInput) {
         $(document).off('mousedown', this.hide);
       }
-      //this.set();
       this.element.trigger({
         type: 'hide',
         date: this.date
