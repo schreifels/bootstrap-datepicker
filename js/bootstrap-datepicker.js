@@ -20,7 +20,7 @@
  * limitations under the License.
  * ========================================================= */
 
-!function( $ ) {
+(function($) {
 
   // Picker object
 
@@ -486,4 +486,4 @@
               '</div>'+
             '</div>';
 
-}( window.jQuery );
+})(jQuery);
