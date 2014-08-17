@@ -42,7 +42,7 @@
       }
     }
 
-    this.minViewMode = options.minViewMode || this.element.data('date-minviewmode') || 0;
+    this.minViewMode = options.minViewMode || this.element.data('date-min-view-mode') || 0;
     if (typeof this.minViewMode === 'string') {
       switch (this.minViewMode) {
         case 'months':
@@ -56,7 +56,7 @@
           break;
       }
     }
-    this.viewMode = options.viewMode || this.element.data('date-viewmode') || 0;
+    this.viewMode = options.viewMode || this.element.data('date-view-mode') || 0;
     if (typeof this.viewMode === 'string') {
       switch (this.viewMode) {
         case 'months':
@@ -71,7 +71,7 @@
       }
     }
     this.startViewMode = this.viewMode;
-    this.weekStart = options.weekStart || this.element.data('date-weekstart') || 0;
+    this.weekStart = options.weekStart || this.element.data('date-week-start') || 0;
     this.weekEnd = this.weekStart === 0 ? 6 : this.weekStart - 1;
     this.onRender = options.onRender;
     this.fillDow();

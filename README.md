@@ -15,6 +15,8 @@ The goal is to maintain a lightweight, extensible library that covers the most c
 $('.datepicker').datepicker(options)
 ```
 
+Options can also be specified with ```data``` attributes by prepending the option name with ```data-date-```. For example, you could set ```minViewMode``` with ```data-date-min-view-mode```.
+
 ## Methods
 
 <dl>
