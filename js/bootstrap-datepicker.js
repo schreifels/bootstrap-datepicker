@@ -85,11 +85,9 @@
     this.height = this.component ? this.component.outerHeight() : this.element.outerHeight();
     this.place();
     $(window).on('resize', $.proxy(this.place, this));
-    if (e ) {
+    if (e) {
       e.stopPropagation();
       e.preventDefault();
-    }
-    if (!this.isInput) {
     }
     var that = this;
     $(document).on('mousedown', function(ev) {
@@ -98,10 +96,7 @@
         that.hide();
       }
     });
-    this.element.trigger({
-      type: 'show',
-      date: this.date
-    });
+    this.element.trigger({ type: 'shown.bs.datepicker', date: this.date });
   };
 
   Datepicker.prototype.hide = function() { // ok
@@ -112,10 +107,7 @@
     if (!this.isInput) {
       $(document).off('mousedown', this.hide);
     }
-    this.element.trigger({
-      type: 'hide',
-      date: this.date
-    });
+    this.element.trigger({ type: 'hidden.bs.datepicker', date: this.date });
   };
 
   Datepicker.prototype.remove = function() {
@@ -285,7 +277,7 @@
           if (this.viewMode !== 0) {
             this.date = new Date(this.viewDate);
             this.element.trigger({
-              type: 'changeDate',
+              type: 'dateSelected.bs.datepicker',
               date: this.date,
               viewMode: DPGlobal.modes[this.viewMode].clsName
             });
@@ -309,7 +301,7 @@
             this.fill();
             this.set();
             this.element.trigger({
-              type: 'changeDate',
+              type: 'dateSelected.bs.datepicker',
               date: this.date,
               viewMode: DPGlobal.modes[this.viewMode].clsName
             });

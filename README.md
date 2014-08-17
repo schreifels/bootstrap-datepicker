@@ -41,18 +41,18 @@ Options can also be specified with ```data``` attributes by prepending the optio
 
 ## Options
 
-Name        | Type    | Default      | Description
------------ | ------- | ------------ | -----------
-format      | string  | 'mm/dd/yyyy' | Date format; combination of d, dd, m, mm, yy, yyyy
-weekStart   | integer | 0            | Day of the week start; 0 for Sunday, 6 for Sunday
-viewMode    | string  | 'days'       | Start view mode; days, months, or years
-minViewMode | string  | 'days'       | Limit for view mode; days, months, or years
+Name        | Type     | Default                      | Description
+----------- | -------- | ---------------------------- | -----------
+format      | string   | 'mm/dd/yyyy'                 | Date format; combination of d, dd, m, mm, yy, yyyy
+weekStart   | integer  | 0                            | Day of the week start; 0 for Sunday, 6 for Sunday
+viewMode    | string   | 'days'                       | Start view mode; days, months, or years
+minViewMode | string   | 'days'                       | Limit for view mode; days, months, or years
+onRender    | function | function(day) { return ''; } | Called when a day is rendered in the datepicker; return 'disabled' to prevent the day from being selectable
 
 ## Events
 
-Event      | Description
----------- | -----------
-show       | This event is fired immediately when the datepicker is displayed.
-hide       | This event is fired immediately when the datepicker is hidden.
-changeDate | This event is fired when the date is changed.
-onRender   | This event is fired when a day is rendered inside the datepicker. Should return a string. Return 'disabled' to disable the day from being selected.
+Event                      | Description
+-------------------------- | -----------
+shown.bs.datepicker        | Fired after the datepicker has been displayed to the user.
+hidden.bs.datepicker       | Fired after the datepicker has been hidden from the user.
+dateSelected.bs.datepicker | Fired after the user selects a date.
