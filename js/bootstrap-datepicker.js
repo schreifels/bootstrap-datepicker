@@ -1,8 +1,11 @@
 /* =========================================================
- * bootstrap-datepicker.js
- * http://www.eyecon.ro/bootstrap-datepicker
+ * removeable-bootstrap-datepicker.js
+ * A fork of Stefan Petre's bootstrap-datepicker that adds a remove method
+ *
+ * Original: http://www.eyecon.ro/bootstrap-datepicker
+ * Fork: https://github.com/schreifels/removeable-bootstrap-datepicker
  * =========================================================
- * Copyright 2012 Stefan Petre
+ * Created by Stefan Petre with a tweak by Michael Schreifels
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
