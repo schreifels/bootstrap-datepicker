@@ -21,9 +21,11 @@
 
 ;(function($) {
 
+  var Datepicker, DPGlobal, headTemplate, tbodyTemplate, template;
+
   // Constructor
 
-  var Datepicker = function(element, options) {
+  Datepicker = function(element, options) {
     this.$element = $(element);
     this.$picker  = $(template).appendTo('body').on('click', $.proxy(this.click, this));
     this.$addOn   = this.$element.is('.date') ? this.$element.find('.add-on') : null;
@@ -152,8 +154,8 @@
   };
 
   Datepicker.prototype.fillDow = function() {
-    var dowCnt = this.weekStart;
-    var html = '<tr>';
+    var dowCnt = this.weekStart,
+        html = '<tr>';
     while (dowCnt < this.weekStart + 7) {
       html += '<th class="dow">'+DPGlobal.dates.daysMin[(dowCnt++)%7]+'</th>';
     }
@@ -162,8 +164,7 @@
   };
 
   Datepicker.prototype.fillMonths = function() {
-    var html = '';
-    var i = 0
+    var html = '', i = 0;
     while (i < 12) {
       html += '<span class="month">'+DPGlobal.dates.monthsShort[i++]+'</span>';
     }
@@ -172,22 +173,21 @@
 
   Datepicker.prototype.fill = function() {
     var d = new Date(this.viewDate),
-      year = d.getFullYear(),
-      month = d.getMonth(),
-      currentDate = this.date.valueOf();
+        year = d.getFullYear(),
+        month = d.getMonth(),
+        currentDate = this.date.valueOf(),
+        currentYear = this.date.getFullYear(),
+        prevMonth, nextMonth, html, clsName, prevY, prevM, months, i, yearCont;
     this.$picker.find('.datepicker-days th:eq(1)')
           .text(DPGlobal.dates.months[month]+' '+year);
-    var prevMonth = new Date(year, month-1, 28,0,0,0,0),
+    prevMonth = new Date(year, month-1, 28,0,0,0,0),
       day = DPGlobal.getDaysInMonth(prevMonth.getFullYear(), prevMonth.getMonth());
     prevMonth.setDate(day);
     prevMonth.setDate(day - (prevMonth.getDay() - this.weekStart + 7)%7);
-    var nextMonth = new Date(prevMonth);
+    nextMonth = new Date(prevMonth);
     nextMonth.setDate(nextMonth.getDate() + 42);
     nextMonth = nextMonth.valueOf();
-    var html = [];
-    var clsName,
-      prevY,
-      prevM;
+    html = [];
     while(prevMonth.valueOf() < nextMonth) {
       if (prevMonth.getDay() === this.weekStart) {
         html.push('<tr>');
@@ -210,9 +210,8 @@
       prevMonth.setDate(prevMonth.getDate()+1);
     }
     this.$picker.find('.datepicker-days tbody').empty().append(html.join(''));
-    var currentYear = this.date.getFullYear();
 
-    var months = this.$picker.find('.datepicker-months')
+    months = this.$picker.find('.datepicker-months')
           .find('th:eq(1)')
             .text(year)
             .end()
@@ -223,13 +222,13 @@
 
     html = '';
     year = parseInt(year/10, 10) * 10;
-    var yearCont = this.$picker.find('.datepicker-years')
+    yearCont = this.$picker.find('.datepicker-years')
               .find('th:eq(1)')
                 .text(year + '-' + (year + 9))
                 .end()
               .find('td');
     year -= 1;
-    for (var i = -1; i < 11; i++) {
+    for (i = -1; i < 11; i++) {
       html += '<span class="year'+(i === -1 || i === 10 ? ' old' : '')+(currentYear === year ? ' active' : '')+'">'+year+'</span>';
       year += 1;
     }
@@ -239,7 +238,7 @@
   Datepicker.prototype.click = function(e) {
     e.stopPropagation();
     e.preventDefault();
-    var target = $(e.target).closest('span, td, th');
+    var target = $(e.target).closest('span, td, th'), day, month, year;
     if (target.length === 1) {
       switch(target[0].nodeName.toLowerCase()) {
         case 'th':
@@ -261,10 +260,10 @@
           break;
         case 'span':
           if (target.is('.month')) {
-            var month = target.parent().find('span').index(target);
+            month = target.parent().find('span').index(target);
             this.viewDate.setMonth(month);
           } else {
-            var year = parseInt(target.text(), 10) || 0;
+            year = parseInt(target.text(), 10) || 0;
             this.viewDate.setFullYear(year);
           }
           if (this.viewMode !== 0) {
@@ -281,14 +280,14 @@
           break;
         case 'td':
           if (target.is('.day') && !target.is('.disabled')) {
-            var day = parseInt(target.text(), 10) || 1;
-            var month = this.viewDate.getMonth();
+            day = parseInt(target.text(), 10) || 1;
+            month = this.viewDate.getMonth();
             if (target.is('.old')) {
               month -= 1;
             } else if (target.is('.new')) {
               month += 1;
             }
-            var year = this.viewDate.getFullYear();
+            year = this.viewDate.getFullYear();
             this.date = new Date(year, month, day,0,0,0,0);
             this.viewDate = new Date(year, month, Math.min(28, day),0,0,0,0);
             this.fill();
@@ -346,7 +345,7 @@
 
   $.fn.datepicker.Constructor = Datepicker;
 
-  var DPGlobal = {
+  DPGlobal = {
     modes: [
       {
         clsName: 'days',
@@ -416,7 +415,7 @@
   }
 
   function formatDate(date, format) {
-    var values = {
+    var date, values = {
       d: date.getDate(),
       m: date.getMonth() + 1,
       yyyy: date.getFullYear().toString()
@@ -425,7 +424,7 @@
     values.mm = (values.m < 10 ? '0' : '') + values.m;
     values.yy = values.yyyy.substring(2);
 
-    var date = [];
+    date = [];
     $.each(format.parts, function(index, part) {
       date.push(values[part]);
     });
@@ -435,7 +434,7 @@
 
   // Template
 
-  var headTemplate =
+  headTemplate =
     '<thead>' +
       '<tr>' +
         '<th class="prev">&lsaquo;</th>' +
@@ -444,14 +443,14 @@
       '</tr>' +
     '</thead>';
 
-  var tbodyTemplate =
+  tbodyTemplate =
     '<tbody>' +
       '<tr>' +
         '<td colspan="7"></td>' +
       '</tr>' +
     '</tbody>';
 
-  var template =
+  template =
     '<div class="datepicker dropdown-menu">' +
       '<div class="datepicker-days">' +
         '<table class="table-condensed">' +
