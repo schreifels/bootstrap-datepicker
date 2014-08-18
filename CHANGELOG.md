@@ -10,3 +10,4 @@
     * Accepts any separator character (not just the configured one)
     * Accepts four digit years even when expecting two digit years and vice-versa
 * Improvements made to documentation
+* When provided an option with both Javascript and a ```data``` attribute, bootstrap-datepicker now gives precedence to the ```data``` attribute

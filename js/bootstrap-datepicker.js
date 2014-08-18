@@ -44,38 +44,15 @@
       }
     }
 
-    this.minViewMode = options.minViewMode || this.$element.data('date-min-view-mode') || 0;
-    if (typeof this.minViewMode === 'string') {
-      switch (this.minViewMode) {
-        case 'months':
-          this.minViewMode = 1;
-          break;
-        case 'years':
-          this.minViewMode = 2;
-          break;
-        default:
-          this.minViewMode = 0;
-          break;
-      }
-    }
-    this.viewMode = options.viewMode || this.$element.data('date-view-mode') || 0;
-    if (typeof this.viewMode === 'string') {
-      switch (this.viewMode) {
-        case 'months':
-          this.viewMode = 1;
-          break;
-        case 'years':
-          this.viewMode = 2;
-          break;
-        default:
-          this.viewMode = 0;
-          break;
-      }
-    }
+    this.minViewMode = this.$element.data('date-min-view-mode') || options.minViewMode;
+    this.minViewMode = { days: 0, months: 1, years: 2 }[this.minViewMode];
+    this.viewMode = this.$element.data('date-view-mode') || options.viewMode;
+    this.viewMode = { days: 0, months: 1, years: 2 }[this.viewMode];
     this.startViewMode = this.viewMode;
-    this.weekStart = options.weekStart || this.$element.data('date-week-start') || 0;
+    this.weekStart = this.$element.data('date-week-start') || options.weekStart;
     this.weekEnd = this.weekStart === 0 ? 6 : this.weekStart - 1;
     this.onRender = options.onRender;
+
     this.fillDow();
     this.fillMonths();
     this.update();
@@ -340,6 +317,9 @@
 
   $.fn.datepicker.defaults = {
     format: 'mm/dd/yyyy',
+    minViewMode: 'years',
+    viewMode: 'days',
+    weekStart: 0,
     onRender: function(date) { return ''; }
   };
 
@@ -387,7 +367,7 @@
   }
 
   function parseDate(dateString, format) {
-    var parts = dateString.split(/\W+/),
+    var parts = String(dateString).split(/\W+/),
         date = new Date();
 
     date.setHours(0);
