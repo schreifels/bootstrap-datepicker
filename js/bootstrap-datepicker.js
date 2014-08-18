@@ -19,11 +19,13 @@
  * limitations under the License.
  * ========================================================================== */
 
-(function($) {
+;(function($) {
+
+  // Constructor
 
   var Datepicker = function(element, options) {
     this.$element = $(element);
-    this.$picker = $(DPGlobal.template).appendTo('body').on('click', $.proxy(this.click, this));
+    this.$picker = $(template).appendTo('body').on('click', $.proxy(this.click, this));
     this.$addOn = this.$element.is('.date') ? this.$element.find('.add-on') : null;
 
     this.events = [];
@@ -340,9 +342,7 @@
   };
 
   $.fn.datepicker.defaults = {
-    onRender: function(date) {
-      return '';
-    }
+    onRender: function(date) { return ''; }
   };
   $.fn.datepicker.Constructor = Datepicker;
 
@@ -435,35 +435,42 @@
         date.push(val[format.parts[i]]);
       }
       return date.join(format.separator);
-    },
-    headTemplate: '<thead>'+
-              '<tr>'+
-                '<th class="prev">&lsaquo;</th>'+
-                '<th colspan="5" class="switch"></th>'+
-                '<th class="next">&rsaquo;</th>'+
-              '</tr>'+
-            '</thead>',
-    contTemplate: '<tbody><tr><td colspan="7"></td></tr></tbody>'
+    }
   };
-  DPGlobal.template = '<div class="datepicker dropdown-menu">'+
-              '<div class="datepicker-days">'+
-                '<table class=" table-condensed">'+
-                  DPGlobal.headTemplate+
-                  '<tbody></tbody>'+
-                '</table>'+
-              '</div>'+
-              '<div class="datepicker-months">'+
-                '<table class="table-condensed">'+
-                  DPGlobal.headTemplate+
-                  DPGlobal.contTemplate+
-                '</table>'+
-              '</div>'+
-              '<div class="datepicker-years">'+
-                '<table class="table-condensed">'+
-                  DPGlobal.headTemplate+
-                  DPGlobal.contTemplate+
-                '</table>'+
-              '</div>'+
-            '</div>';
+
+  var headTemplate =
+    '<thead>' +
+      '<tr>' +
+        '<th class="prev">&lsaquo;</th>' +
+        '<th colspan="5" class="switch"></th>' +
+        '<th class="next">&rsaquo;</th>' +
+      '</tr>' +
+    '</thead>';
+
+  var tbodyTemplate =
+    '<tbody>' +
+      '<tr>' +
+        '<td colspan="7"></td>' +
+      '</tr>' +
+    '</tbody>';
+
+  var template =
+    '<div class="datepicker dropdown-menu">' +
+      '<div class="datepicker-days">' +
+        '<table class="table-condensed">' +
+          headTemplate + '<tbody></tbody>' +
+        '</table>' +
+      '</div>' +
+      '<div class="datepicker-months">' +
+        '<table class="table-condensed">' +
+          headTemplate + tbodyTemplate +
+        '</table>' +
+      '</div>' +
+      '<div class="datepicker-years">' +
+        '<table class="table-condensed">' +
+          headTemplate + tbodyTemplate +
+        '</table>' +
+      '</div>' +
+    '</div>';
 
 })(jQuery);
