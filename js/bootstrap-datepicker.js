@@ -21,28 +21,27 @@
 
 (function($) {
 
-  // Picker object
-
   var Datepicker = function(element, options) {
-    this.element = $(element);
-    this.format = DPGlobal.parseFormat(options.format || this.element.data('date-format') || 'mm/dd/yyyy');
-    this.picker = $(DPGlobal.template).appendTo('body').on('click', $.proxy(this.click, this));
-    this.isInput = this.element.is('input');
-    this.component = this.element.is('.date') ? this.element.find('.add-on') : false;
+    this.$element = $(element);
+    this.$picker = $(DPGlobal.template).appendTo('body').on('click', $.proxy(this.click, this));
+    this.$component = this.$element.is('.date') ? this.$element.find('.add-on') : null;
+
     this.events = [];
+    this.format = DPGlobal.parseFormat(options.format || this.$element.data('date-format') || 'mm/dd/yyyy');
+    this.isInput = this.$element.is('input');
 
     if (this.isInput) {
-      this.bindEvent(this.element, 'focus', $.proxy(this.show, this));
-      this.bindEvent(this.element, 'keyup', $.proxy(this.update, this));
+      this.bindEvent(this.$element, 'focus', $.proxy(this.show, this));
+      this.bindEvent(this.$element, 'keyup', $.proxy(this.update, this));
     } else {
-      if (this.component) {
-        this.bindEvent(this.component, 'click', $.proxy(this.show, this));
+      if (this.$component) {
+        this.bindEvent(this.$component, 'click', $.proxy(this.show, this));
       } else {
-        this.bindEvent(this.element, 'click', $.proxy(this.show, this));
+        this.bindEvent(this.$element, 'click', $.proxy(this.show, this));
       }
     }
 
-    this.minViewMode = options.minViewMode || this.element.data('date-min-view-mode') || 0;
+    this.minViewMode = options.minViewMode || this.$element.data('date-min-view-mode') || 0;
     if (typeof this.minViewMode === 'string') {
       switch (this.minViewMode) {
         case 'months':
@@ -56,7 +55,7 @@
           break;
       }
     }
-    this.viewMode = options.viewMode || this.element.data('date-view-mode') || 0;
+    this.viewMode = options.viewMode || this.$element.data('date-view-mode') || 0;
     if (typeof this.viewMode === 'string') {
       switch (this.viewMode) {
         case 'months':
@@ -71,7 +70,7 @@
       }
     }
     this.startViewMode = this.viewMode;
-    this.weekStart = options.weekStart || this.element.data('date-week-start') || 0;
+    this.weekStart = options.weekStart || this.$element.data('date-week-start') || 0;
     this.weekEnd = this.weekStart === 0 ? 6 : this.weekStart - 1;
     this.onRender = options.onRender;
     this.fillDow();
@@ -80,9 +79,9 @@
     this.showMode();
   };
 
-  Datepicker.prototype.show = function(e) { // ok
-    this.picker.show();
-    this.height = this.component ? this.component.outerHeight() : this.element.outerHeight();
+  Datepicker.prototype.show = function(e) {
+    this.$picker.show();
+    this.height = this.$component ? this.$component.outerHeight() : this.$element.outerHeight();
     this.place();
     $(window).on('resize', $.proxy(this.place, this));
     if (e) {
@@ -92,27 +91,27 @@
     var that = this;
     $(document).on('mousedown', function(ev) {
       var $target = $(ev.target);
-      if ((!that.isInput || !$target.is(that.element)) && $target.closest('.datepicker').length === 0) {
+      if ((!that.isInput || !$target.is(that.$element)) && $target.closest('.datepicker').length === 0) {
         that.hide();
       }
     });
-    this.element.trigger({ type: 'shown.bs.datepicker', date: this.date });
+    this.$element.trigger({ type: 'shown.bs.datepicker', date: this.date });
   };
 
-  Datepicker.prototype.hide = function() { // ok
-    this.picker.hide();
+  Datepicker.prototype.hide = function() {
+    this.$picker.hide();
     $(window).off('resize', this.place);
     this.viewMode = this.startViewMode;
     this.showMode();
     if (!this.isInput) {
       $(document).off('mousedown', this.hide);
     }
-    this.element.trigger({ type: 'hidden.bs.datepicker', date: this.date });
+    this.$element.trigger({ type: 'hidden.bs.datepicker', date: this.date });
   };
 
   Datepicker.prototype.remove = function() {
     this.hide();
-    this.picker.remove();
+    this.$picker.remove();
     $.each(this.events, function(index, e) {
       e[0].off(e[1], e[2]);
     });
@@ -121,12 +120,12 @@
   Datepicker.prototype.set = function() {
     var formatted = DPGlobal.formatDate(this.date, this.format);
     if (!this.isInput) {
-      if (this.component) {
-        this.element.find('input').prop('value', formatted);
+      if (this.$component) {
+        this.$element.find('input').prop('value', formatted);
       }
-      this.element.data('date', formatted);
+      this.$element.data('date', formatted);
     } else {
-      this.element.prop('value', formatted);
+      this.$element.prop('value', formatted);
     }
   };
 
@@ -142,8 +141,8 @@
   };
 
   Datepicker.prototype.place = function() {
-    var offset = this.component ? this.component.offset() : this.element.offset();
-    this.picker.css({
+    var offset = this.$component ? this.$component.offset() : this.$element.offset();
+    this.$picker.css({
       top: offset.top + this.height,
       left: offset.left
     });
@@ -151,7 +150,7 @@
 
   Datepicker.prototype.update = function(newDate) {
     this.date = DPGlobal.parseDate(
-      typeof newDate === 'string' ? newDate : (this.isInput ? this.element.prop('value') : this.element.data('date')),
+      typeof newDate === 'string' ? newDate : (this.isInput ? this.$element.prop('value') : this.$element.data('date')),
       this.format
     );
     this.viewDate = new Date(this.date.getFullYear(), this.date.getMonth(), 1, 0, 0, 0, 0);
@@ -165,7 +164,7 @@
       html += '<th class="dow">'+DPGlobal.dates.daysMin[(dowCnt++)%7]+'</th>';
     }
     html += '</tr>';
-    this.picker.find('.datepicker-days thead').append(html);
+    this.$picker.find('.datepicker-days thead').append(html);
   };
 
   Datepicker.prototype.fillMonths = function() {
@@ -174,7 +173,7 @@
     while (i < 12) {
       html += '<span class="month">'+DPGlobal.dates.monthsShort[i++]+'</span>';
     }
-    this.picker.find('.datepicker-months td').append(html);
+    this.$picker.find('.datepicker-months td').append(html);
   };
 
   Datepicker.prototype.fill = function() {
@@ -182,7 +181,7 @@
       year = d.getFullYear(),
       month = d.getMonth(),
       currentDate = this.date.valueOf();
-    this.picker.find('.datepicker-days th:eq(1)')
+    this.$picker.find('.datepicker-days th:eq(1)')
           .text(DPGlobal.dates.months[month]+' '+year);
     var prevMonth = new Date(year, month-1, 28,0,0,0,0),
       day = DPGlobal.getDaysInMonth(prevMonth.getFullYear(), prevMonth.getMonth());
@@ -216,10 +215,10 @@
       }
       prevMonth.setDate(prevMonth.getDate()+1);
     }
-    this.picker.find('.datepicker-days tbody').empty().append(html.join(''));
+    this.$picker.find('.datepicker-days tbody').empty().append(html.join(''));
     var currentYear = this.date.getFullYear();
 
-    var months = this.picker.find('.datepicker-months')
+    var months = this.$picker.find('.datepicker-months')
           .find('th:eq(1)')
             .text(year)
             .end()
@@ -230,7 +229,7 @@
 
     html = '';
     year = parseInt(year/10, 10) * 10;
-    var yearCont = this.picker.find('.datepicker-years')
+    var yearCont = this.$picker.find('.datepicker-years')
               .find('th:eq(1)')
                 .text(year + '-' + (year + 9))
                 .end()
@@ -276,7 +275,7 @@
           }
           if (this.viewMode !== 0) {
             this.date = new Date(this.viewDate);
-            this.element.trigger({
+            this.$element.trigger({
               type: 'dateSelected.bs.datepicker',
               date: this.date,
               viewMode: DPGlobal.modes[this.viewMode].clsName
@@ -300,7 +299,7 @@
             this.viewDate = new Date(year, month, Math.min(28, day),0,0,0,0);
             this.fill();
             this.set();
-            this.element.trigger({
+            this.$element.trigger({
               type: 'dateSelected.bs.datepicker',
               date: this.date,
               viewMode: DPGlobal.modes[this.viewMode].clsName
@@ -320,7 +319,7 @@
     if (dir) {
       this.viewMode = Math.max(this.minViewMode, Math.min(2, this.viewMode + dir));
     }
-    this.picker.find('>div').hide().filter('.datepicker-'+DPGlobal.modes[this.viewMode].clsName).show();
+    this.$picker.find('>div').hide().filter('.datepicker-'+DPGlobal.modes[this.viewMode].clsName).show();
   };
 
   Datepicker.prototype.bindEvent = function($el, event, handler) {
