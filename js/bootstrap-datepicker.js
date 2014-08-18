@@ -24,7 +24,7 @@
   var Datepicker = function(element, options) {
     this.$element = $(element);
     this.$picker = $(DPGlobal.template).appendTo('body').on('click', $.proxy(this.click, this));
-    this.$component = this.$element.is('.date') ? this.$element.find('.add-on') : null;
+    this.$addOn = this.$element.is('.date') ? this.$element.find('.add-on') : null;
 
     this.events = [];
     this.format = DPGlobal.parseFormat(options.format || this.$element.data('date-format') || 'mm/dd/yyyy');
@@ -34,8 +34,8 @@
       this.bindEvent(this.$element, 'focus', $.proxy(this.show, this));
       this.bindEvent(this.$element, 'keyup', $.proxy(this.update, this));
     } else {
-      if (this.$component) {
-        this.bindEvent(this.$component, 'click', $.proxy(this.show, this));
+      if (this.$addOn) {
+        this.bindEvent(this.$addOn, 'click', $.proxy(this.show, this));
       } else {
         this.bindEvent(this.$element, 'click', $.proxy(this.show, this));
       }
@@ -81,7 +81,7 @@
 
   Datepicker.prototype.show = function(e) {
     this.$picker.show();
-    this.height = this.$component ? this.$component.outerHeight() : this.$element.outerHeight();
+    this.height = this.$addOn ? this.$addOn.outerHeight() : this.$element.outerHeight();
     this.place();
     $(window).on('resize', $.proxy(this.place, this));
     if (e) {
@@ -120,7 +120,7 @@
   Datepicker.prototype.set = function() {
     var formatted = DPGlobal.formatDate(this.date, this.format);
     if (!this.isInput) {
-      if (this.$component) {
+      if (this.$addOn) {
         this.$element.find('input').prop('value', formatted);
       }
       this.$element.data('date', formatted);
@@ -141,7 +141,7 @@
   };
 
   Datepicker.prototype.place = function() {
-    var offset = this.$component ? this.$component.offset() : this.$element.offset();
+    var offset = this.$addOn ? this.$addOn.offset() : this.$element.offset();
     this.$picker.css({
       top: offset.top + this.height,
       left: offset.left
