@@ -1,11 +1,6 @@
 # bootstrap-datepicker
 
-This is a fork of Stefan Petre's [bootstrap-datepicker](http://www.eyecon.ro/bootstrap-datepicker/). There are a few improvements over the original:
-
-* A new **remove** method, which removes datepicker events and DOM elements
-* The code has been cleaned up for consistency, readability, and extensibility
-
-See the [changelog](CHANGELOG.md) for specifics.
+This is a fork of Stefan Petre's [bootstrap-datepicker](http://www.eyecon.ro/bootstrap-datepicker/). The code is being refactored for consistency, usability, and extensibility. See the [changelog](CHANGELOG.md) for changes to the public interface.
 
 The goal is to maintain a lightweight, extensible library that covers the most common datepicker use cases. If you're looking for internationalization, keyboard navigation, and other advanced features, see eternicode's [popular fork](https://github.com/eternicode/bootstrap-datepicker).
 
@@ -47,7 +42,7 @@ https://schreifels.github.io/bootstrap-datepicker
 
 Name        | Type     | Default                      | Description
 ----------- | -------- | ---------------------------- | -----------
-format      | string   | 'mm/dd/yyyy'                 | Date format; combination of d, dd, m, mm, yy, yyyy
+format      | string   | 'mm/dd/yyyy'                 | Date format; combination of d, dd, m, mm, yy, yyyy; separator can be any non-alphanumeric character except underscore
 weekStart   | integer  | 0                            | Day of the week start; 0 for Sunday, 6 for Sunday
 viewMode    | string   | 'days'                       | Start view mode; days, months, or years
 minViewMode | string   | 'days'                       | Limit for view mode; days, months, or years

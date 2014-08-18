@@ -398,21 +398,17 @@
 
     $.each(format.parts, function(index, formatPart) {
       if (!parts[index]) { return; }
-      switch(formatPart) {
-        case 'dd':
-        case 'd':
-          date.setDate(parseInt(parts[index]));
-          break;
-        case 'mm':
-        case 'm':
-          date.setMonth(parseInt(parts[index]) - 1);
-          break;
-        case 'yy':
-          date.setFullYear(2000 + parseInt(parts[index]));
-          break;
-        case 'yyyy':
+
+      if (formatPart === 'dd' || formatPart === 'd') {
+        date.setDate(parseInt(parts[index]));
+      } else if (formatPart === 'mm' || formatPart === 'm') {
+        date.setMonth(parseInt(parts[index]) - 1);
+      } else if (formatPart === 'yyyy' || formatPart === 'yy') {
+        if (parts[index].length === 4) {
           date.setFullYear(parseInt(parts[index]));
-          break;
+        } else {
+          date.setFullYear(parseInt('20' + parts[index].slice(-2)));
+        }
       }
     });
 
