@@ -305,11 +305,6 @@
     }
   };
 
-  Datepicker.prototype.mousedown = function(e) {
-    e.stopPropagation();
-    e.preventDefault();
-  };
-
   Datepicker.prototype.showMode = function(dir) {
     if (dir) {
       this.viewMode = Math.max(this.minViewMode, Math.min(2, this.viewMode + dir));
