@@ -113,7 +113,7 @@
   };
 
   Datepicker.prototype.set = function() {
-    var formatted = DPGlobal.formatDate(this.date, this.format);
+    var formatted = formatDate(this.date, this.format);
     if (!this.isInput) {
       if (this.$addOn) {
         this.$element.find('input').prop('value', formatted);
@@ -413,31 +413,34 @@
         date = new Date(year, month, day, 0 ,0 ,0);
       }
       return date;
-    },
-    formatDate: function(date, format) {
-      var val = {
-        d: date.getDate(),
-        m: date.getMonth() + 1,
-        yy: date.getFullYear().toString().substring(2),
-        yyyy: date.getFullYear()
-      };
-      val.dd = (val.d < 10 ? '0' : '') + val.d;
-      val.mm = (val.m < 10 ? '0' : '') + val.m;
-      var date = [];
-      for (var i=0, cnt = format.parts.length; i < cnt; i++) {
-        date.push(val[format.parts[i]]);
-      }
-      return date.join(format.separator);
     }
   };
 
   // Utility methods
 
-  var parseFormat = function(format) {
+  function parseFormat(format) {
     var separator = format.match(/\W/),
         parts     = format.split(separator);
     if (parts.length <= 1) { throw new Error('Invalid date format'); }
     return { separator: separator, parts: parts };
+  };
+
+  function formatDate(date, format) {
+    var values = {
+      d: date.getDate(),
+      m: date.getMonth() + 1,
+      yyyy: date.getFullYear().toString()
+    };
+    values.dd = (values.d < 10 ? '0' : '') + values.d;
+    values.mm = (values.m < 10 ? '0' : '') + values.m;
+    values.yy = values.yyyy.substring(2);
+
+    var date = [];
+    $.each(format.parts, function(index, part) {
+      date.push(values[part]);
+    });
+
+    return date.join(format.separator);
   };
 
   // Template
