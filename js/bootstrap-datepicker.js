@@ -28,18 +28,17 @@
     this.$picker = $(template).appendTo('body').on('click', $.proxy(this.click, this));
     this.$addOn = this.$element.is('.date') ? this.$element.find('.add-on') : null;
 
-    this.events = [];
     this.format = DPGlobal.parseFormat(options.format || this.$element.data('date-format') || 'mm/dd/yyyy');
     this.isInput = this.$element.is('input');
 
     if (this.isInput) {
-      this.bindEvent(this.$element, 'focus', $.proxy(this.show, this));
-      this.bindEvent(this.$element, 'keyup', $.proxy(this.update, this));
+      this.bindEvent('alwaysBound', this.$element, 'focus', $.proxy(this.show, this));
+      this.bindEvent('alwaysBound', this.$element, 'keyup', $.proxy(this.update, this));
     } else {
       if (this.$addOn) {
-        this.bindEvent(this.$addOn, 'click', $.proxy(this.show, this));
+        this.bindEvent('alwaysBound', this.$addOn, 'click', $.proxy(this.show, this));
       } else {
-        this.bindEvent(this.$element, 'click', $.proxy(this.show, this));
+        this.bindEvent('alwaysBound', this.$element, 'click', $.proxy(this.show, this));
       }
     }
 
@@ -82,41 +81,35 @@
   };
 
   Datepicker.prototype.show = function(e) {
+    if (e) { e.stopPropagation(); e.preventDefault(); }
+
     this.$picker.show();
     this.height = this.$addOn ? this.$addOn.outerHeight() : this.$element.outerHeight();
     this.place();
-    $(window).on('resize', $.proxy(this.place, this));
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-    var that = this;
-    $(document).on('mousedown', function(ev) {
+
+    this.bindEvent('boundWhenShown', $(window), 'resize', $.proxy(this.place, this));
+    this.bindEvent('boundWhenShown', $(document), 'mousedown', $.proxy(function(ev) {
       var $target = $(ev.target);
-      if ((!that.isInput || !$target.is(that.$element)) && $target.closest('.datepicker').length === 0) {
-        that.hide();
+      if (!$target.is(this.$element) && $target.closest('.datepicker').length === 0) {
+        this.hide();
       }
-    });
+    }, this));
+
     this.$element.trigger({ type: 'shown.bs.datepicker', date: this.date });
   };
 
   Datepicker.prototype.hide = function() {
     this.$picker.hide();
-    $(window).off('resize', this.place);
+    this.unbindEvents('boundWhenShown');
     this.viewMode = this.startViewMode;
     this.showMode();
-    if (!this.isInput) {
-      $(document).off('mousedown', this.hide);
-    }
     this.$element.trigger({ type: 'hidden.bs.datepicker', date: this.date });
   };
 
   Datepicker.prototype.remove = function() {
     this.hide();
     this.$picker.remove();
-    $.each(this.events, function(index, e) {
-      e[0].off(e[1], e[2]);
-    });
+    this.unbindEvents('alwaysBound');
   };
 
   Datepicker.prototype.set = function() {
@@ -324,9 +317,20 @@
     this.$picker.find('>div').hide().filter('.datepicker-'+DPGlobal.modes[this.viewMode].clsName).show();
   };
 
-  Datepicker.prototype.bindEvent = function($el, event, handler) {
+  // Event handling
+
+  Datepicker.prototype.bindEvent = function(category, $el, event, handler) {
+    this.events || (this.events = {});
+    this.events[category] || (this.events[category] = []);
+
     $el.on(event, handler);
-    this.events.push([$el, event, handler]);
+    this.events[category].push([$el, event, handler]);
+  };
+
+  Datepicker.prototype.unbindEvents = function(category) {
+    $.each(this.events[category], function(index, e) {
+      e[0].off(e[1], e[2]);
+    });
   };
 
   $.fn.datepicker = function ( option, val ) {
