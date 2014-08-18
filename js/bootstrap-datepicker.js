@@ -119,14 +119,14 @@
   };
 
   Datepicker.prototype.set = function() {
-    var formated = DPGlobal.formatDate(this.date, this.format);
+    var formatted = DPGlobal.formatDate(this.date, this.format);
     if (!this.isInput) {
       if (this.component) {
-        this.element.find('input').prop('value', formated);
+        this.element.find('input').prop('value', formatted);
       }
-      this.element.data('date', formated);
+      this.element.data('date', formatted);
     } else {
-      this.element.prop('value', formated);
+      this.element.prop('value', formatted);
     }
   };
 
