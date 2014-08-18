@@ -25,10 +25,10 @@
 
   var Datepicker = function(element, options) {
     this.$element = $(element);
-    this.$picker = $(template).appendTo('body').on('click', $.proxy(this.click, this));
-    this.$addOn = this.$element.is('.date') ? this.$element.find('.add-on') : null;
+    this.$picker  = $(template).appendTo('body').on('click', $.proxy(this.click, this));
+    this.$addOn   = this.$element.is('.date') ? this.$element.find('.add-on') : null;
 
-    this.format = DPGlobal.parseFormat(options.format || this.$element.data('date-format') || 'mm/dd/yyyy');
+    this.format  = parseFormat(this.$element.data('date-format') || options.format);
     this.isInput = this.$element.is('input');
 
     if (this.isInput) {
@@ -341,8 +341,10 @@
   };
 
   $.fn.datepicker.defaults = {
+    format: 'mm/dd/yyyy',
     onRender: function(date) { return ''; }
   };
+
   $.fn.datepicker.Constructor = Datepicker;
 
   var DPGlobal = {
@@ -374,14 +376,6 @@
     },
     getDaysInMonth: function (year, month) {
       return [31, (DPGlobal.isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month]
-    },
-    parseFormat: function(format) {
-      var separator = format.match(/[.\/\-\s].*?/),
-        parts = format.split(/\W+/);
-      if (!separator || !parts || parts.length === 0) {
-        throw new Error('Invalid date format.');
-      }
-      return {separator: separator, parts: parts};
     },
     parseDate: function(date, format) {
       var parts = date.split(format.separator),
@@ -436,6 +430,17 @@
       return date.join(format.separator);
     }
   };
+
+  // Utility methods
+
+  var parseFormat = function(format) {
+    var separator = format.match(/\W/),
+        parts     = format.split(separator);
+    if (parts.length <= 1) { throw new Error('Invalid date format'); }
+    return { separator: separator, parts: parts };
+  };
+
+  // Template
 
   var headTemplate =
     '<thead>' +
