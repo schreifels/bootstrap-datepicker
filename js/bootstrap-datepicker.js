@@ -126,7 +126,7 @@
 
   Datepicker.prototype.setValue = function(newDate) {
     if (typeof newDate === 'string') {
-      this.date = DPGlobal.parseDate(newDate, this.format);
+      this.date = parseDate(newDate, this.format);
     } else {
       this.date = new Date(newDate);
     }
@@ -144,9 +144,8 @@
   };
 
   Datepicker.prototype.update = function(newDate) {
-    this.date = DPGlobal.parseDate(
-      typeof newDate === 'string' ? newDate : (this.isInput ? this.$element.prop('value') : this.$element.data('date')),
-      this.format
+    this.date = parseDate(
+      typeof newDate === 'string' ? newDate : (this.isInput ? this.$element.prop('value') : this.$element.data('date')), this.format
     );
     this.viewDate = new Date(this.date.getFullYear(), this.date.getMonth(), 1, 0, 0, 0, 0);
     this.fill();
@@ -376,43 +375,6 @@
     },
     getDaysInMonth: function (year, month) {
       return [31, (DPGlobal.isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month]
-    },
-    parseDate: function(date, format) {
-      var parts = date.split(format.separator),
-        date = new Date(),
-        val;
-      date.setHours(0);
-      date.setMinutes(0);
-      date.setSeconds(0);
-      date.setMilliseconds(0);
-      if (parts.length === format.parts.length) {
-        var year = date.getFullYear(), day = date.getDate(), month = date.getMonth();
-        for (var i=0, cnt = format.parts.length; i < cnt; i++) {
-          val = parseInt(parts[i], 10) || 1;
-          switch(format.parts[i]) {
-            case 'dd':
-            case 'd':
-              day = val;
-              date.setDate(val);
-              break;
-            case 'mm':
-            case 'm':
-              month = val - 1;
-              date.setMonth(val - 1);
-              break;
-            case 'yy':
-              year = 2000 + val;
-              date.setFullYear(2000 + val);
-              break;
-            case 'yyyy':
-              year = val;
-              date.setFullYear(val);
-              break;
-          }
-        }
-        date = new Date(year, month, day, 0 ,0 ,0);
-      }
-      return date;
     }
   };
 
@@ -423,7 +385,39 @@
         parts     = format.split(separator);
     if (parts.length <= 1) { throw new Error('Invalid date format'); }
     return { separator: separator, parts: parts };
-  };
+  }
+
+  function parseDate(dateString, format) {
+    var parts = dateString.split(format.separator), year, month, day,
+        date = new Date();
+
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+
+    $.each(format.parts, function(index, formatPart) {
+      if (!parts[index]) { return; }
+      switch(formatPart) {
+        case 'dd':
+        case 'd':
+          date.setDate(parseInt(parts[index]));
+          break;
+        case 'mm':
+        case 'm':
+          date.setMonth(parseInt(parts[index]) - 1);
+          break;
+        case 'yy':
+          date.setFullYear(2000 + parseInt(parts[index]));
+          break;
+        case 'yyyy':
+          date.setFullYear(parseInt(parts[index]));
+          break;
+      }
+    });
+
+    return date;
+  }
 
   function formatDate(date, format) {
     var values = {
@@ -441,7 +435,7 @@
     });
 
     return date.join(format.separator);
-  };
+  }
 
   // Template
 
