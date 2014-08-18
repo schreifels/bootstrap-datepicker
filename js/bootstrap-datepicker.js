@@ -381,14 +381,14 @@
   // Utility methods
 
   function parseFormat(format) {
-    var separator = format.match(/\W/),
+    var separator = format.match(/\W+/),
         parts     = format.split(separator);
-    if (parts.length <= 1) { throw new Error('Invalid date format'); }
+    if (parts.length < 2) { throw new Error('Invalid date format'); }
     return { separator: separator, parts: parts };
   }
 
   function parseDate(dateString, format) {
-    var parts = dateString.split(format.separator), year, month, day,
+    var parts = dateString.split(/\W+/),
         date = new Date();
 
     date.setHours(0);
