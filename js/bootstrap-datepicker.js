@@ -21,7 +21,7 @@
 
 ;(function($) {
 
-  var Datepicker, DPGlobal, headTemplate, tbodyTemplate, template;
+  var Datepicker, headTemplate, tbodyTemplate, template, modes, dates;
 
   // Constructor
 
@@ -134,7 +134,7 @@
     var dowCnt = this.weekStart,
         html = '<tr>';
     while (dowCnt < this.weekStart + 7) {
-      html += '<th class="dow">'+DPGlobal.dates.daysMin[(dowCnt++)%7]+'</th>';
+      html += '<th class="dow">' + dates.daysShorter[dowCnt++ % 7] + '</th>';
     }
     html += '</tr>';
     this.$picker.find('.datepicker-days thead').append(html);
@@ -143,7 +143,7 @@
   Datepicker.prototype.fillMonths = function() {
     var html = '', i = 0;
     while (i < 12) {
-      html += '<span class="month">'+DPGlobal.dates.monthsShort[i++]+'</span>';
+      html += '<span class="month">' + dates.monthsShort[i++] + '</span>';
     }
     this.$picker.find('.datepicker-months td').append(html);
   };
@@ -156,9 +156,9 @@
         currentYear = this.date.getFullYear(),
         prevMonth, nextMonth, html, clsName, prevY, prevM, months, i, yearCont;
     this.$picker.find('.datepicker-days th:eq(1)')
-          .text(DPGlobal.dates.months[month]+' '+year);
+          .text(dates.months[month] + ' ' + year);
     prevMonth = new Date(year, month-1, 28,0,0,0,0),
-      day = DPGlobal.getDaysInMonth(prevMonth.getFullYear(), prevMonth.getMonth());
+      day = getDaysInMonth(prevMonth.getMonth(), prevMonth.getFullYear());
     prevMonth.setDate(day);
     prevMonth.setDate(day - (prevMonth.getDay() - this.weekStart + 7)%7);
     nextMonth = new Date(prevMonth);
@@ -225,10 +225,10 @@
               break;
             case 'prev':
             case 'next':
-              this.viewDate['set'+DPGlobal.modes[this.viewMode].navFnc].call(
+              this.viewDate['set' + modes[this.viewMode].navFnc].call(
                 this.viewDate,
-                this.viewDate['get'+DPGlobal.modes[this.viewMode].navFnc].call(this.viewDate) +
-                DPGlobal.modes[this.viewMode].navStep * (target[0].className === 'prev' ? -1 : 1)
+                this.viewDate['get' + modes[this.viewMode].navFnc].call(this.viewDate) +
+                modes[this.viewMode].navStep * (target[0].className === 'prev' ? -1 : 1)
               );
               this.fill();
               this.set();
@@ -248,7 +248,7 @@
             this.$element.trigger({
               type: 'dateSelected.bs.datepicker',
               date: this.date,
-              viewMode: DPGlobal.modes[this.viewMode].clsName
+              viewMode: modes[this.viewMode].clsName
             });
           }
           this.showMode(-1);
@@ -272,7 +272,7 @@
             this.$element.trigger({
               type: 'dateSelected.bs.datepicker',
               date: this.date,
-              viewMode: DPGlobal.modes[this.viewMode].clsName
+              viewMode: modes[this.viewMode].clsName
             });
           }
           break;
@@ -284,7 +284,7 @@
     if (dir) {
       this.viewMode = Math.max(this.minViewMode, Math.min(2, this.viewMode + dir));
     }
-    this.$picker.find('>div').hide().filter('.datepicker-'+DPGlobal.modes[this.viewMode].clsName).show();
+    this.$picker.find('> div').hide().filter('.datepicker-'+modes[this.viewMode].clsName).show();
   };
 
   // Event handling
@@ -324,38 +324,6 @@
   };
 
   $.fn.datepicker.Constructor = Datepicker;
-
-  DPGlobal = {
-    modes: [
-      {
-        clsName: 'days',
-        navFnc: 'Month',
-        navStep: 1
-      },
-      {
-        clsName: 'months',
-        navFnc: 'FullYear',
-        navStep: 1
-      },
-      {
-        clsName: 'years',
-        navFnc: 'FullYear',
-        navStep: 10
-    }],
-    dates:{
-      days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-      daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-      daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
-      months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-      monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    },
-    isLeapYear: function (year) {
-      return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0))
-    },
-    getDaysInMonth: function (year, month) {
-      return [31, (DPGlobal.isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month]
-    }
-  };
 
   // Utility methods
 
@@ -412,6 +380,16 @@
     return date.join(format.separator);
   }
 
+  // Utility methods - date lookups
+
+  function isLeapYear(year) {
+    return ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
+  }
+
+  function getDaysInMonth(month, year) {
+    return [31, (isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month]
+  }
+
   // Template
 
   headTemplate =
@@ -448,5 +426,21 @@
         '</table>' +
       '</div>' +
     '</div>';
+
+  // Reference
+
+  modes = [
+    { clsName: 'days',   navFnc: 'Month',    navStep: 1 },
+    { clsName: 'months', navFnc: 'FullYear', navStep: 1 },
+    { clsName: 'years',  navFnc: 'FullYear', navStep: 10 }
+  ];
+
+  dates = {
+    days:        ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    daysShort:   ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    daysShorter: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+    months:      ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  };
 
 })(jQuery);
