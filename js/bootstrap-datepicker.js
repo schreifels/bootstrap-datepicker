@@ -21,7 +21,7 @@
 
 ;(function($) {
 
-  var Datepicker, headTemplate, tbodyTemplate, template, modes, dates;
+  var Datepicker, defaults, headTemplate, tbodyTemplate, template, modes, dictionary;
 
   //////////////////////////////////////////////////////////////////////////////
   // Constructor
@@ -136,7 +136,7 @@
     var dowCnt = this.weekStart,
         html = '<tr>';
     while (dowCnt < this.weekStart + 7) {
-      html += '<th class="dow">' + dates.daysShorter[dowCnt++ % 7] + '</th>';
+      html += '<th class="dow">' + dictionary.daysShorter[dowCnt++ % 7] + '</th>';
     }
     html += '</tr>';
     this.$picker.find('.datepicker-days thead').append(html);
@@ -145,7 +145,7 @@
   Datepicker.prototype.fillMonths = function() {
     var html = '', i = 0;
     while (i < 12) {
-      html += '<span class="month">' + dates.monthsShort[i++] + '</span>';
+      html += '<span class="month">' + dictionary.monthsShort[i++] + '</span>';
     }
     this.$picker.find('.datepicker-months td').append(html);
   };
@@ -158,7 +158,7 @@
         currentYear = this.date.getFullYear(),
         prevMonth, nextMonth, html, clsName, prevY, prevM, months, i, yearCont;
     this.$picker.find('.datepicker-days th:eq(1)')
-          .text(dates.months[month] + ' ' + year);
+          .text(dictionary.months[month] + ' ' + year);
     prevMonth = new Date(year, month-1, 28,0,0,0,0),
       day = getDaysInMonth(prevMonth.getMonth(), prevMonth.getFullYear());
     prevMonth.setDate(day);
@@ -311,27 +311,25 @@
   // jQuery plugin definition
   //////////////////////////////////////////////////////////////////////////////
 
-  $.fn.datepicker = function ( option, val ) {
-    return this.each(function () {
-      var $this = $(this),
-        data = $this.data('datepicker'),
-        options = typeof option === 'object' && option;
-      if (!data) {
-        $this.data('datepicker', (data = new Datepicker(this, $.extend({}, $.fn.datepicker.defaults,options))));
-      }
-      if (typeof option === 'string') data[option](val);
+  $.fn.datepicker = function(option, val) {
+    return this.each(function() {
+      var $this   = $(this),
+          data    = $this.data('bs.datepicker'),
+          options = $.extend({}, defaults, $this.data(), typeof option === 'object' && option);
+      if (!data) { $this.data('bs.datepicker', (data = new Datepicker(this, options))); }
+      if (typeof option === 'string') { data[option](val); }
     });
   };
 
-  $.fn.datepicker.defaults = {
+  $.fn.datepicker.Constructor = Datepicker;
+
+  defaults = {
     format: 'mm/dd/yyyy',
     minViewMode: 'years',
     viewMode: 'days',
     weekStart: 0,
     onRender: function(date) { return ''; }
   };
-
-  $.fn.datepicker.Constructor = Datepicker;
 
   //////////////////////////////////////////////////////////////////////////////
   // Utility methods
@@ -373,11 +371,12 @@
   }
 
   function formatDate(date, format) {
-    var date, values = {
-      d: date.getDate(),
-      m: date.getMonth() + 1,
-      yyyy: date.getFullYear().toString()
-    };
+    var date,
+        values = {
+          d: date.getDate(),
+          m: date.getMonth() + 1,
+          yyyy: date.getFullYear().toString()
+        };
     values.dd = (values.d < 10 ? '0' : '') + values.d;
     values.mm = (values.m < 10 ? '0' : '') + values.m;
     values.yy = values.yyyy.substring(2);
@@ -447,7 +446,7 @@
     { clsName: 'years',  navFnc: 'FullYear', navStep: 10 }
   ];
 
-  dates = {
+  dictionary = {
     days:        ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
     daysShort:   ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     daysShorter: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
