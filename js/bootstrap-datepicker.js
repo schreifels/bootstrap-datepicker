@@ -155,21 +155,21 @@
   };
 
   Datepicker.prototype.fill = function() {
-    var d = new Date(this.viewDate),
-        year = d.getFullYear(),
-        month = d.getMonth(),
+    var year = this.viewDate.getFullYear(),
+        month = this.viewDate.getMonth(),
         currentDate = this.date.valueOf(),
         currentYear = this.date.getFullYear(),
         prevMonth, nextMonth, html, clsName, prevY, prevM, months, i, yearCont;
 
     this.$picker.find('.datepicker-days th:eq(1)').text(dictionary.months[month] + ' ' + year);
 
-    prevMonth = new Date(year, month, 0, 0, 0, 0, 0); // day 0 is the last of the previous month
+    prevMonth = new Date(year, month, 0, 0, 0, 0, 0); // day 0 is the last day of the previous month
     prevMonth.setDate(prevMonth.getDate() - ((prevMonth.getDay() - this.weekStart + 7) % 7));
 
     nextMonth = new Date(prevMonth);
     nextMonth.setDate(nextMonth.getDate() + 42);
     nextMonth = nextMonth.valueOf();
+
     html = [];
     while(prevMonth.valueOf() < nextMonth) {
       if (prevMonth.getDay() === this.weekStart) {
