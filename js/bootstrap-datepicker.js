@@ -161,12 +161,12 @@
         currentDate = this.date.valueOf(),
         currentYear = this.date.getFullYear(),
         prevMonth, nextMonth, html, clsName, prevY, prevM, months, i, yearCont;
-    this.$picker.find('.datepicker-days th:eq(1)')
-          .text(dictionary.months[month] + ' ' + year);
-    prevMonth = new Date(year, month-1, 28,0,0,0,0),
-      day = getDaysInMonth(prevMonth.getMonth(), prevMonth.getFullYear());
-    prevMonth.setDate(day);
-    prevMonth.setDate(day - (prevMonth.getDay() - this.weekStart + 7)%7);
+
+    this.$picker.find('.datepicker-days th:eq(1)').text(dictionary.months[month] + ' ' + year);
+
+    prevMonth = new Date(year, month, 0, 0, 0, 0, 0); // day 0 is the last of the previous month
+    prevMonth.setDate(prevMonth.getDate() - ((prevMonth.getDay() - this.weekStart + 7) % 7));
+
     nextMonth = new Date(prevMonth);
     nextMonth.setDate(nextMonth.getDate() + 42);
     nextMonth = nextMonth.valueOf();
@@ -391,14 +391,6 @@
     });
 
     return date.join(format.separator);
-  }
-
-  function isLeapYear(year) {
-    return ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
-  }
-
-  function getDaysInMonth(month, year) {
-    return [31, (isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month]
   }
 
   //////////////////////////////////////////////////////////////////////////////
