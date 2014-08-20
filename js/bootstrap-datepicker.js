@@ -55,8 +55,8 @@
     this.weekEnd = this.weekStart === 0 ? 6 : this.weekStart - 1;
     this.onRender = options.onRender;
 
-    this.fillDow();
-    this.fillMonths();
+    this._renderDaysOfWeek();
+    this._renderMonths();
     this.update();
     this.showMode();
   };
@@ -132,21 +132,25 @@
     this.fill();
   };
 
-  Datepicker.prototype.fillDow = function() {
-    var dowCnt = this.weekStart,
+  Datepicker.prototype._renderDaysOfWeek = function() {
+    var currentDay = this.weekStart,
         html = '<tr>';
-    while (dowCnt < this.weekStart + 7) {
-      html += '<th class="dow">' + dictionary.daysShorter[dowCnt++ % 7] + '</th>';
+
+    while (currentDay < this.weekStart + 7) {
+      html += '<th class="dow">' + dictionary.daysShorter[currentDay++ % 7] + '</th>';
     }
     html += '</tr>';
+
     this.$picker.find('.datepicker-days thead').append(html);
   };
 
-  Datepicker.prototype.fillMonths = function() {
+  Datepicker.prototype._renderMonths = function() {
     var html = '', i = 0;
+
     while (i < 12) {
       html += '<span class="month">' + dictionary.monthsShort[i++] + '</span>';
     }
+
     this.$picker.find('.datepicker-months td').append(html);
   };
 
