@@ -36,13 +36,13 @@
     this.isInput = this.$element.is('input');
 
     if (this.isInput) {
-      this.bindEvent('alwaysBound', this.$element, 'focus', $.proxy(this.show, this));
-      this.bindEvent('alwaysBound', this.$element, 'keyup', $.proxy(this.update, this));
+      this._bindEvent('alwaysBound', this.$element, 'focus', $.proxy(this.show, this));
+      this._bindEvent('alwaysBound', this.$element, 'keyup', $.proxy(this.update, this));
     } else {
       if (this.$addOn) {
-        this.bindEvent('alwaysBound', this.$addOn, 'click', $.proxy(this.show, this));
+        this._bindEvent('alwaysBound', this.$addOn, 'click', $.proxy(this.show, this));
       } else {
-        this.bindEvent('alwaysBound', this.$element, 'click', $.proxy(this.show, this));
+        this._bindEvent('alwaysBound', this.$element, 'click', $.proxy(this.show, this));
       }
     }
 
@@ -68,8 +68,8 @@
     this.height = this.$addOn ? this.$addOn.outerHeight() : this.$element.outerHeight();
     this.place();
 
-    this.bindEvent('boundWhenShown', $(window), 'resize', $.proxy(this.place, this));
-    this.bindEvent('boundWhenShown', $(document), 'mousedown', $.proxy(function(ev) {
+    this._bindEvent('boundWhenShown', $(window), 'resize', $.proxy(this.place, this));
+    this._bindEvent('boundWhenShown', $(document), 'mousedown', $.proxy(function(ev) {
       var $target = $(ev.target);
       if (!$target.is(this.$element) && $target.closest('.datepicker').length === 0) {
         this.hide();
@@ -81,7 +81,7 @@
 
   Datepicker.prototype.hide = function() {
     this.$picker.hide();
-    this.unbindEvents('boundWhenShown');
+    this._unbindEvents('boundWhenShown');
     this.viewMode = this.startViewMode;
     this.showMode();
     this.$element.trigger({ type: 'hidden.bs.datepicker', date: this.date });
@@ -90,7 +90,7 @@
   Datepicker.prototype.remove = function() {
     this.hide();
     this.$picker.remove();
-    this.unbindEvents('alwaysBound');
+    this._unbindEvents('alwaysBound');
   };
 
   Datepicker.prototype.set = function() {
@@ -293,16 +293,16 @@
   // Event handling
   //////////////////////////////////////////////////////////////////////////////
 
-  Datepicker.prototype.bindEvent = function(category, $el, event, handler) {
-    this.events || (this.events = {});
-    this.events[category] || (this.events[category] = []);
+  Datepicker.prototype._bindEvent = function(category, $el, event, handler) {
+    this._events || (this._events = {});
+    this._events[category] || (this._events[category] = []);
 
     $el.on(event, handler);
-    this.events[category].push([$el, event, handler]);
+    this._events[category].push([$el, event, handler]);
   };
 
-  Datepicker.prototype.unbindEvents = function(category) {
-    $.each(this.events[category], function(index, e) {
+  Datepicker.prototype._unbindEvents = function(category) {
+    $.each(this._events[category], function(index, e) {
       e[0].off(e[1], e[2]);
     });
   };
