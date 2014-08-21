@@ -11,3 +11,5 @@
     * Accepts four digit years even when expecting two digit years and vice-versa
 * Improvements made to documentation
 * When provided an option with both Javascript and a ```data``` attribute, bootstrap-datepicker now gives precedence to the ```data``` attribute
+* minViewMode has been removed as an option
+* If you select the header in years mode, it will take you back to days mode
