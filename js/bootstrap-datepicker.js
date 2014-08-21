@@ -134,7 +134,7 @@
         html = '<tr>';
 
     while (currentDay < this.weekStart + 7) {
-      html += '<th class="dow">' + dictionary.daysShorter[currentDay++ % 7] + '</th>';
+      html += '<th class="dow">' + dictionary.days[currentDay++ % 7] + '</th>';
     }
     html += '</tr>';
 
@@ -377,12 +377,13 @@
   }
 
   function formatDate(date, format) {
-    var date,
-        values = {
-          d: date.getDate(),
-          m: date.getMonth() + 1,
-          yyyy: date.getFullYear().toString()
-        };
+    var date, values;
+
+    values = {
+      d: date.getDate(),
+      m: date.getMonth() + 1,
+      yyyy: date.getFullYear().toString()
+    };
     values.dd = (values.d < 10 ? '0' : '') + values.d;
     values.mm = (values.m < 10 ? '0' : '') + values.m;
     values.yy = values.yyyy.substring(2);
@@ -441,9 +442,7 @@
   viewModes = ['days', 'months', 'years'];
 
   dictionary = {
-    days:        ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-    daysShort:   ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    daysShorter: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+    days:        ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
     months:      ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   };
