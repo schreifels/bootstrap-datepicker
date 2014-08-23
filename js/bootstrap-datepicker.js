@@ -29,15 +29,16 @@
 
   Datepicker = function(element, options) {
     this.$element = $(element);
-    this.$picker  = $(template).appendTo('body').on('click', $.proxy(this.click, this));
+    this.$picker  = $(template).appendTo('body');
     this.$addOn   = this.$element.is('.date') ? this.$element.find('.add-on') : null;
 
     this.format  = parseFormat(this.$element.data('date-format') || options.format);
     this.isInput = this.$element.is('input');
 
+    this.$picker.on('click', $.proxy(this._click, this));
     if (this.isInput) {
       this._bindEvent('alwaysBound', this.$element, 'focus', $.proxy(this.show, this));
-      this._bindEvent('alwaysBound', this.$element, 'keyup', $.proxy(this.update, this));
+      this._bindEvent('alwaysBound', this.$element, 'keyup', $.proxy(this._update, this));
     } else {
       if (this.$addOn) {
         this._bindEvent('alwaysBound', this.$addOn, 'click', $.proxy(this.show, this));
@@ -45,6 +46,8 @@
         this._bindEvent('alwaysBound', this.$element, 'click', $.proxy(this.show, this));
       }
     }
+
+    this.date = this.isInput ? this.$element.prop('value') : this.$element.data('date');
 
     this.viewMode = viewModes.indexOf(this.$element.data('date-view-mode') || options.viewMode);
     this.startViewMode = this.viewMode;
@@ -54,7 +57,7 @@
 
     this._renderDaysOfWeek();
     this._renderMonths();
-    this.update();
+    this._update();
     this._showMode();
   };
 
@@ -90,27 +93,29 @@
     this._unbindEvents('alwaysBound');
   };
 
-  Datepicker.prototype.set = function() {
-    var formatted = formatDate(this.date, this.format);
-    if (!this.isInput) {
-      if (this.$addOn) {
-        this.$element.find('input').prop('value', formatted);
-      }
-      this.$element.data('date', formatted);
-    } else {
-      this.$element.prop('value', formatted);
-    }
-  };
-
-  Datepicker.prototype.setValue = function(newDate) {
+  Datepicker.prototype.setDate = function(newDate) {
     if (typeof newDate === 'string') {
       this.date = parseDate(newDate, this.format);
     } else {
-      this.date = new Date(newDate);
+      this.date = newDate;
     }
-    this.set();
+
+    var formatted = formatDate(this.date, this.format);
+    if (this.$addOn) {
+      this.$element.find('input').prop('value', formatted);
+    } else if (this.isInput) {
+      this.$element.prop('value', formatted);
+    } else {
+      this.$element.data('date', formatted);
+    }
+
     this.viewDate = new Date(this.date.getFullYear(), this.date.getMonth(), 1, 0, 0, 0, 0);
     this._renderDays();
+    // this.$element.trigger({
+    //   type: 'dateSelected.bs.datepicker',
+    //   date: this.date,
+    //   viewMode: viewModes[this.viewMode]
+    // });
   };
 
   Datepicker.prototype.place = function() {
@@ -121,7 +126,8 @@
     });
   };
 
-  Datepicker.prototype.update = function(newDate) {
+  // TODO - is this needed?
+  Datepicker.prototype._update = function(newDate) {
     this.date = parseDate(
       typeof newDate === 'string' ? newDate : (this.isInput ? this.$element.prop('value') : this.$element.data('date')), this.format
     );
@@ -156,7 +162,8 @@
         month = this.viewDate.getMonth(),
         today = this.date.getTime(),
         thisYear = this.date.getFullYear(),
-        currentDay, nextMonth, html, className, months;
+        currentDay, nextMonth, html, className, months,
+        currentYear, currentMonth, currentDate;
 
     this.$picker.find('.datepicker-days th:eq(1)').text(dictionary.months[month] + ' ' + year);
 
@@ -171,18 +178,30 @@
     while(currentDay.getTime() < nextMonth) {
       currentYear  = currentDay.getFullYear();
       currentMonth = currentDay.getMonth();
+      currentDate  = currentDay.getDate();
       className    = this.onRender(currentDay);
 
       if (currentDay.getDay() === this.weekStart) { html += '<tr>'; }
       if ((currentMonth < month &&  currentYear === year) || currentYear < year) {
-        className += ' old';
+        className += ' datepicker-old';
       } else if ((currentMonth > month && currentYear === year) || currentYear > year) {
-        className += ' new';
+        className += ' datepicker-new';
       }
-      if (currentDay.getTime() === today) { className += ' active'; }
-      html += ('<td class="day ' + className + '">' + currentDay.getDate() + '</td>');
+      if (currentDay.getTime() === today) { className += ' datepicker-selected'; }
+      html += (
+        '<td>' +
+          '<a href="#" ' +
+               'data-handler="setDate" ' +
+               'data-year="' + currentYear + '" ' +
+               'data-month="' + currentMonth + '" ' +
+               'data-day="' + currentDate + '" ' +
+               'class="' + className + '">' +
+               currentDay.getDate() +
+          '</a>' +
+        '</td>'
+      );
       if (currentDay.getDay() === this.weekEnd) { html += '</tr>'; }
-      currentDay.setDate(currentDay.getDate() + 1);
+      currentDay.setDate(currentDate + 1);
     }
 
     this.$picker.find('.datepicker-days tbody').html(html);
@@ -210,68 +229,72 @@
     $years.html(html);
   };
 
-  Datepicker.prototype.click = function(e) {
-    e.stopPropagation();
+  Datepicker.prototype._click = function(e) {
+    var $target = $(e.target), year, month, day;
+
+    if (!$target.is('a')) { return; }
+
     e.preventDefault();
-    var target = $(e.target).closest('span, td, th'), day, month, year;
-    if (target.length === 1) {
-      switch(target[0].nodeName.toLowerCase()) {
-        case 'th':
-          switch(target[0].className) {
-            case 'switch':
-              this._showMode('next');
-              break;
-            case 'prev':
-              this._changePage('prev');
-              break;
-            case 'next':
-              this._changePage('next');
-              break;
-          }
-          break;
-          case 'span':
-          if (target.is('.month')) {
-            month = target.parent().find('span').index(target);
-            this.viewDate.setMonth(month);
-          } else {
-            year = parseInt(target.text(), 10) || 0;
-            this.viewDate.setFullYear(year);
-          }
-          if (this.viewMode !== 0) {
-            this.date = new Date(this.viewDate);
-            this.$element.trigger({
-              type: 'dateSelected.bs.datepicker',
-              date: this.date,
-              viewMode: viewModes[this.viewMode]
-            });
-          }
-          this._showMode('prev');
-          this._renderDays();
-          this.set();
-          break;
-        case 'td':
-          if (target.is('.day') && !target.is('.disabled')) {
-            day = parseInt(target.text(), 10) || 1;
-            month = this.viewDate.getMonth();
-            if (target.is('.old')) {
-              month -= 1;
-            } else if (target.is('.new')) {
-              month += 1;
-            }
-            year = this.viewDate.getFullYear();
-            this.date = new Date(year, month, day,0,0,0,0);
-            this.viewDate = new Date(year, month, Math.min(28, day),0,0,0,0);
-            this._renderDays();
-            this.set();
-            this.$element.trigger({
-              type: 'dateSelected.bs.datepicker',
-              date: this.date,
-              viewMode: viewModes[this.viewMode]
-            });
-          }
-          break;
-      }
+    e.stopPropagation();
+
+    switch ($target.data('handler')) {
+      case 'setDate':
+        this.setDate(new Date($target.data('year'), $target.data('month'), $target.data('day'), 0, 0, 0, 0));
+        break;
     }
+
+    // if (target.length === 1) {
+    //   switch(target[0].nodeName.toLowerCase()) {
+    //     case 'th':
+    //       switch(target[0].className) {
+    //         case 'switch': this._showMode('next');   break;
+    //         case 'prev':   this._changePage('prev'); break;
+    //         case 'next':   this._changePage('next'); break;
+    //       }
+    //       break;
+    //     case 'span':
+    //       if (target.is('.month')) {
+    //         month = target.parent().find('span').index(target);
+    //         this.viewDate.setMonth(month);
+    //       } else {
+    //         year = parseInt(target.text(), 10) || 0;
+    //         this.viewDate.setFullYear(year);
+    //       }
+    //       if (this.viewMode !== 0) {
+            // this.date = new Date(this.viewDate);
+            // this.$element.trigger({
+            //   type: 'dateSelected.bs.datepicker',
+            //   date: this.date,
+            //   viewMode: viewModes[this.viewMode]
+            // });
+    //       }
+          // this._showMode('prev');
+          // this._renderDays();
+          // this.set();
+    //       break;
+    //     case 'td':
+    //       if (target.is('.day') && !target.is('.disabled')) {
+    //         day = parseInt(target.text(), 10) || 1;
+    //         month = this.viewDate.getMonth();
+    //         if (target.is('.old')) {
+    //           month -= 1;
+    //         } else if (target.is('.new')) {
+    //           month += 1;
+    //         }
+    //         year = this.viewDate.getFullYear();
+    //         this.date = new Date(year, month, day,0,0,0,0);
+    //         this.viewDate = new Date(year, month, Math.min(28, day),0,0,0,0);
+    //         this._renderDays();
+    //         this.set();
+    //         this.$element.trigger({
+    //           type: 'dateSelected.bs.datepicker',
+    //           date: this.date,
+    //           viewMode: viewModes[this.viewMode]
+    //         });
+    //       }
+    //       break;
+      // }
+    // }
   };
 
   Datepicker.prototype._changePage = function(direction) {
@@ -284,7 +307,6 @@
     }
 
     this._renderDays();
-    this.set();
   };
 
   Datepicker.prototype._showMode = function(direction) {
@@ -404,7 +426,7 @@
     '<thead>' +
       '<tr>' +
         '<th class="prev">&lsaquo;</th>' +
-        '<th colspan="5" class="switch"></th>' +
+        '<th colspan="5"><a href="#" data-datepicker-action="change-mode"></a></th>' +
         '<th class="next">&rsaquo;</th>' +
       '</tr>' +
     '</thead>';
