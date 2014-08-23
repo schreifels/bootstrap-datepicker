@@ -38,7 +38,9 @@
     this.$picker.on('click', $.proxy(this._click, this));
     if (this.isInput) {
       this._bindEvent('alwaysBound', this.$element, 'focus', $.proxy(this.show, this));
-      this._bindEvent('alwaysBound', this.$element, 'keyup', $.proxy(this._update, this));
+      this._bindEvent('alwaysBound', this.$element, 'keyup', $.proxy(function(e) {
+        this.setDate(e.target.value, true);
+      }, this));
     } else {
       if (this.$addOn) {
         this._bindEvent('alwaysBound', this.$addOn, 'click', $.proxy(this.show, this));
@@ -46,8 +48,6 @@
         this._bindEvent('alwaysBound', this.$element, 'click', $.proxy(this.show, this));
       }
     }
-
-    this.date = this.isInput ? this.$element.prop('value') : this.$element.data('date');
 
     this.viewMode = viewModes.indexOf(this.$element.data('date-view-mode') || options.viewMode);
     this.startViewMode = this.viewMode;
@@ -57,7 +57,7 @@
 
     this._renderDaysOfWeek();
     this._renderMonths();
-    this._update();
+    this.setDate((this.isInput ? this.$element.prop('value') : this.$element.data('date')) || new Date(), true);
     this._showMode();
   };
 
@@ -93,29 +93,35 @@
     this._unbindEvents('alwaysBound');
   };
 
-  Datepicker.prototype.setDate = function(newDate) {
+  Datepicker.prototype.setDate = function(newDate, skipFieldUpdate) {
+    var formatted;
+
     if (typeof newDate === 'string') {
       this.date = parseDate(newDate, this.format);
     } else {
       this.date = newDate;
     }
 
-    var formatted = formatDate(this.date, this.format);
-    if (this.$addOn) {
-      this.$element.find('input').prop('value', formatted);
-    } else if (this.isInput) {
-      this.$element.prop('value', formatted);
-    } else {
-      this.$element.data('date', formatted);
+    if (!skipFieldUpdate) {
+      // TODO: no need to set this if this is a result of user input
+      formatted = formatDate(this.date, this.format);
+      if (this.$addOn) {
+        this.$element.find('input').prop('value', formatted);
+      } else if (this.isInput) {
+        this.$element.prop('value', formatted);
+      } else {
+        this.$element.data('date', formatted);
+      }
     }
 
-    this.viewDate = new Date(this.date.getFullYear(), this.date.getMonth(), 1, 0, 0, 0, 0);
+    this.viewport = { year: this.date.getFullYear(), month: this.date.getMonth() };
     this._renderDays();
-    // this.$element.trigger({
-    //   type: 'dateSelected.bs.datepicker',
-    //   date: this.date,
-    //   viewMode: viewModes[this.viewMode]
-    // });
+
+    this.$element.trigger({
+      type: 'dateSet.bs.datepicker',
+      date: this.date,
+      viewMode: viewModes[this.viewMode]
+    });
   };
 
   Datepicker.prototype.place = function() {
@@ -124,15 +130,6 @@
       top: offset.top + this.height,
       left: offset.left
     });
-  };
-
-  // TODO - is this needed?
-  Datepicker.prototype._update = function(newDate) {
-    this.date = parseDate(
-      typeof newDate === 'string' ? newDate : (this.isInput ? this.$element.prop('value') : this.$element.data('date')), this.format
-    );
-    this.viewDate = new Date(this.date.getFullYear(), this.date.getMonth(), 1, 0, 0, 0, 0);
-    this._renderDays();
   };
 
   Datepicker.prototype._renderDaysOfWeek = function() {
@@ -158,16 +155,14 @@
   };
 
   Datepicker.prototype._renderDays = function() {
-    var year = this.viewDate.getFullYear(),
-        month = this.viewDate.getMonth(),
-        today = this.date.getTime(),
+    var today = this.date.getTime(),
         thisYear = this.date.getFullYear(),
         currentDay, nextMonth, html, className, months,
         currentYear, currentMonth, currentDate;
 
-    this.$picker.find('.datepicker-days th:eq(1)').text(dictionary.months[month] + ' ' + year);
+    this.$picker.find('.datepicker-days th:eq(1)').text(dictionary.months[this.viewport.month] + ' ' + this.viewport.year);
 
-    currentDay = new Date(year, month, 0, 0, 0, 0, 0); // day 0 is the last day of the previous month
+    currentDay = new Date(this.viewport.year, this.viewport.month, 0, 0, 0, 0, 0); // day 0 is the last day of the previous month
     currentDay.setDate(currentDay.getDate() - ((currentDay.getDay() - this.weekStart + 7) % 7));
 
     nextMonth = new Date(currentDay);
@@ -182,9 +177,9 @@
       className    = this.onRender(currentDay);
 
       if (currentDay.getDay() === this.weekStart) { html += '<tr>'; }
-      if ((currentMonth < month &&  currentYear === year) || currentYear < year) {
+      if ((currentMonth < this.viewport.month &&  currentYear === this.viewport.year) || currentYear < this.viewport.year) {
         className += ' datepicker-old';
-      } else if ((currentMonth > month && currentYear === year) || currentYear > year) {
+      } else if ((currentMonth > this.viewport.month && currentYear === this.viewport.year) || currentYear > this.viewport.year) {
         className += ' datepicker-new';
       }
       if (currentDay.getTime() === today) { className += ' datepicker-selected'; }
@@ -215,7 +210,7 @@
 
   Datepicker.prototype._renderYears = function() {
     var html        = '',
-        currentYear = parseInt(this.viewDate.getFullYear() / 10) * 10,
+        currentYear = parseInt(this.viewport.year / 10) * 10,
         $years      = this.$picker.find('.datepicker-years'),
         thisYear    = this.date.getFullYear();
 
@@ -255,13 +250,13 @@
     //     case 'span':
     //       if (target.is('.month')) {
     //         month = target.parent().find('span').index(target);
-    //         this.viewDate.setMonth(month);
+    //         this.viewport.setMonth(month);
     //       } else {
     //         year = parseInt(target.text(), 10) || 0;
-    //         this.viewDate.setFullYear(year);
+    //         this.viewport.setFullYear(year);
     //       }
     //       if (this.viewMode !== 0) {
-            // this.date = new Date(this.viewDate);
+            // this.date = new Date(this.viewport);
             // this.$element.trigger({
             //   type: 'dateSelected.bs.datepicker',
             //   date: this.date,
@@ -275,15 +270,15 @@
     //     case 'td':
     //       if (target.is('.day') && !target.is('.disabled')) {
     //         day = parseInt(target.text(), 10) || 1;
-    //         month = this.viewDate.getMonth();
+    //         month = this.viewport.getMonth();
     //         if (target.is('.old')) {
     //           month -= 1;
     //         } else if (target.is('.new')) {
     //           month += 1;
     //         }
-    //         year = this.viewDate.getFullYear();
+    //         year = this.viewport.getFullYear();
     //         this.date = new Date(year, month, day,0,0,0,0);
-    //         this.viewDate = new Date(year, month, Math.min(28, day),0,0,0,0);
+    //         this.viewport = new Date(year, month, Math.min(28, day),0,0,0,0);
     //         this._renderDays();
     //         this.set();
     //         this.$element.trigger({
@@ -301,14 +296,15 @@
     var direction = (direction === 'next') ? 1 : -1;
 
     if (viewModes[this.viewMode] === 'days' || viewModes[this.viewMode] === 'months') {
-      this.viewDate.setMonth(this.viewDate.getMonth() + direction);
+      this.viewport.month = this.viewport.month + direction;
     } else {
-      this.viewDate.setFullYear(this.viewDate.getFullYear() + direction);
+      this.viewport.year = this.viewport.year + direction;
     }
 
     this._renderDays();
   };
 
+  // TODO change to setMode, remove underscore
   Datepicker.prototype._showMode = function(direction) {
     if (direction) {
       direction = (direction === 'next') ? 1 : -1;
