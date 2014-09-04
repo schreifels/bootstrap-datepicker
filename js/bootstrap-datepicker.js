@@ -21,7 +21,7 @@
 
 ;(function($) {
 
-  var Datepicker, defaults, headTemplate, tbodyTemplate, template, viewModes, dictionary;
+  var Datepicker, defaults, tbodyTemplate, template, viewModes, dictionary;
 
   //////////////////////////////////////////////////////////////////////////////
   // Constructor
@@ -39,7 +39,7 @@
     if (this.isInput) {
       this._bindEvent('alwaysBound', this.$element, 'focus', $.proxy(this.show, this));
       this._bindEvent('alwaysBound', this.$element, 'keyup', $.proxy(function(e) {
-        this.setDate(e.target.value, true);
+        this.setDate(parseDate(e.target.value, this.format), true);
       }, this));
     } else {
       if (this.$addOn) {
@@ -58,8 +58,12 @@
     this._renderDaysOfWeek();
     this._renderMonths();
     this.setDate((this.isInput ? this.$element.prop('value') : this.$element.data('date')) || new Date(), true);
-    this._showMode();
+    this.setMode();
   };
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Public methods
+  //////////////////////////////////////////////////////////////////////////////
 
   Datepicker.prototype.show = function(e) {
     if (e) { e.stopPropagation(); e.preventDefault(); }
@@ -83,7 +87,7 @@
     this.$picker.hide();
     this._unbindEvents('boundWhenShown');
     this.viewMode = this.startViewMode;
-    this._showMode();
+    this.setMode();
     this.$element.trigger({ type: 'hidden.bs.datepicker', date: this.date });
   };
 
@@ -96,14 +100,9 @@
   Datepicker.prototype.setDate = function(newDate, skipFieldUpdate) {
     var formatted;
 
-    if (typeof newDate === 'string') {
-      this.date = parseDate(newDate, this.format);
-    } else {
-      this.date = newDate;
-    }
+    this.date = newDate;
 
     if (!skipFieldUpdate) {
-      // TODO: no need to set this if this is a result of user input
       formatted = formatDate(this.date, this.format);
       if (this.$addOn) {
         this.$element.find('input').prop('value', formatted);
@@ -131,6 +130,31 @@
       left: offset.left
     });
   };
+
+  Datepicker.prototype.setMode = function(direction) {
+    if (direction) {
+      direction = (direction === 'next') ? 1 : -1;
+      // When we get to the last viewMode, wrap around the beginning
+      this.viewMode = (this.viewMode + direction) % viewModes.length;
+    }
+    this.$picker.find('> div').hide().filter('.datepicker-' + viewModes[this.viewMode]).show();
+  };
+
+  Datepicker.prototype.changePage = function(direction) {
+    var direction = (direction === 'next') ? 1 : -1;
+
+    if (viewModes[this.viewMode] === 'days' || viewModes[this.viewMode] === 'months') {
+      this.viewport.month = this.viewport.month + direction;
+    } else {
+      this.viewport.year = this.viewport.year + direction;
+    }
+
+    this._renderDays();
+  };
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Rendering
+  //////////////////////////////////////////////////////////////////////////////
 
   Datepicker.prototype._renderDaysOfWeek = function() {
     var currentDay = this.weekStart,
@@ -160,7 +184,7 @@
         currentDay, nextMonth, html, className, months,
         currentYear, currentMonth, currentDate;
 
-    this.$picker.find('.datepicker-days th:eq(1)').text(dictionary.months[this.viewport.month] + ' ' + this.viewport.year);
+    this.$picker.find('.datepicker-days th:eq(1) a').text(dictionary.months[this.viewport.month] + ' ' + this.viewport.year);
 
     currentDay = new Date(this.viewport.year, this.viewport.month, 0, 0, 0, 0, 0); // day 0 is the last day of the previous month
     currentDay.setDate(currentDay.getDate() - ((currentDay.getDay() - this.weekStart + 7) % 7));
@@ -214,7 +238,7 @@
         $years      = this.$picker.find('.datepicker-years'),
         thisYear    = this.date.getFullYear();
 
-    $years.find('th:eq(1)').text(currentYear + '-' + (currentYear + 9));
+    $years.find('th:eq(1) a').text(currentYear + '-' + (currentYear + 9));
     $years = $years.find('td');
 
     currentYear -= 1;
@@ -223,6 +247,10 @@
     }
     $years.html(html);
   };
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Event handling
+  //////////////////////////////////////////////////////////////////////////////
 
   Datepicker.prototype._click = function(e) {
     var $target = $(e.target), year, month, day;
@@ -236,87 +264,11 @@
       case 'setDate':
         this.setDate(new Date($target.data('year'), $target.data('month'), $target.data('day'), 0, 0, 0, 0));
         break;
+      case 'setMode':
+        this.setMode('next');
+        break;
     }
-
-    // if (target.length === 1) {
-    //   switch(target[0].nodeName.toLowerCase()) {
-    //     case 'th':
-    //       switch(target[0].className) {
-    //         case 'switch': this._showMode('next');   break;
-    //         case 'prev':   this._changePage('prev'); break;
-    //         case 'next':   this._changePage('next'); break;
-    //       }
-    //       break;
-    //     case 'span':
-    //       if (target.is('.month')) {
-    //         month = target.parent().find('span').index(target);
-    //         this.viewport.setMonth(month);
-    //       } else {
-    //         year = parseInt(target.text(), 10) || 0;
-    //         this.viewport.setFullYear(year);
-    //       }
-    //       if (this.viewMode !== 0) {
-            // this.date = new Date(this.viewport);
-            // this.$element.trigger({
-            //   type: 'dateSelected.bs.datepicker',
-            //   date: this.date,
-            //   viewMode: viewModes[this.viewMode]
-            // });
-    //       }
-          // this._showMode('prev');
-          // this._renderDays();
-          // this.set();
-    //       break;
-    //     case 'td':
-    //       if (target.is('.day') && !target.is('.disabled')) {
-    //         day = parseInt(target.text(), 10) || 1;
-    //         month = this.viewport.getMonth();
-    //         if (target.is('.old')) {
-    //           month -= 1;
-    //         } else if (target.is('.new')) {
-    //           month += 1;
-    //         }
-    //         year = this.viewport.getFullYear();
-    //         this.date = new Date(year, month, day,0,0,0,0);
-    //         this.viewport = new Date(year, month, Math.min(28, day),0,0,0,0);
-    //         this._renderDays();
-    //         this.set();
-    //         this.$element.trigger({
-    //           type: 'dateSelected.bs.datepicker',
-    //           date: this.date,
-    //           viewMode: viewModes[this.viewMode]
-    //         });
-    //       }
-    //       break;
-      // }
-    // }
   };
-
-  Datepicker.prototype._changePage = function(direction) {
-    var direction = (direction === 'next') ? 1 : -1;
-
-    if (viewModes[this.viewMode] === 'days' || viewModes[this.viewMode] === 'months') {
-      this.viewport.month = this.viewport.month + direction;
-    } else {
-      this.viewport.year = this.viewport.year + direction;
-    }
-
-    this._renderDays();
-  };
-
-  // TODO change to setMode, remove underscore
-  Datepicker.prototype._showMode = function(direction) {
-    if (direction) {
-      direction = (direction === 'next') ? 1 : -1;
-      // When we get to the last viewMode, wrap around the beginning
-      this.viewMode = (this.viewMode + direction) % viewModes.length;
-    }
-    this.$picker.find('> div').hide().filter('.datepicker-' + viewModes[this.viewMode]).show();
-  };
-
-  //////////////////////////////////////////////////////////////////////////////
-  // Event handling
-  //////////////////////////////////////////////////////////////////////////////
 
   Datepicker.prototype._bindEvent = function(category, $el, event, handler) {
     this._events || (this._events = {});
@@ -418,14 +370,15 @@
   // Template
   //////////////////////////////////////////////////////////////////////////////
 
-  headTemplate =
-    '<thead>' +
-      '<tr>' +
-        '<th class="prev">&lsaquo;</th>' +
-        '<th colspan="5"><a href="#" data-datepicker-action="change-mode"></a></th>' +
-        '<th class="next">&rsaquo;</th>' +
-      '</tr>' +
-    '</thead>';
+  function headTemplate(data) {
+    return '<thead>' +
+             '<tr>' +
+               '<th class="prev">&lsaquo;</th>' +
+               '<th colspan="5"><a href="#" data-handler="' + data + '"></a></th>' +
+               '<th class="next">&rsaquo;</th>' +
+             '</tr>' +
+           '</thead>';
+  }
 
   tbodyTemplate =
     '<tbody>' +
@@ -438,17 +391,20 @@
     '<div class="datepicker dropdown-menu">' +
       '<div class="datepicker-days">' +
         '<table class="table-condensed">' +
-          headTemplate + '<tbody></tbody>' +
+          headTemplate('setMode') +
+          '<tbody></tbody>' +
         '</table>' +
       '</div>' +
       '<div class="datepicker-months">' +
         '<table class="table-condensed">' +
-          headTemplate + tbodyTemplate +
+          headTemplate('setMode') +
+          tbodyTemplate +
         '</table>' +
       '</div>' +
       '<div class="datepicker-years">' +
         '<table class="table-condensed">' +
-          headTemplate + tbodyTemplate +
+          headTemplate('setMode') +
+          tbodyTemplate +
         '</table>' +
       '</div>' +
     '</div>';
