@@ -55,9 +55,9 @@
     this.weekEnd = this.weekStart === 0 ? 6 : this.weekStart - 1;
     this.onRender = options.onRender;
 
+    this.setDate((this.isInput ? this.$element.prop('value') : this.$element.data('date')) || new Date(), true);
     this._renderDaysOfWeek();
     this._renderMonths();
-    this.setDate((this.isInput ? this.$element.prop('value') : this.$element.data('date')) || new Date(), true);
     this.setMode();
   };
 
@@ -168,16 +168,6 @@
     this.$picker.find('.datepicker-days thead').append(html);
   };
 
-  Datepicker.prototype._renderMonths = function() {
-    var html = '', i = 0;
-
-    while (i < 12) {
-      html += '<span class="month">' + dictionary.monthsShort[i++] + '</span>';
-    }
-
-    this.$picker.find('.datepicker-months td').append(html);
-  };
-
   Datepicker.prototype._renderDays = function() {
     var today = this.date.getTime(),
         thisYear = this.date.getFullYear(),
@@ -230,6 +220,17 @@
     // if (thisYear === year) { months.eq(this.date.getMonth()).addClass('active'); }
 
     this._renderYears();
+  };
+
+  Datepicker.prototype._renderMonths = function() {
+    var html = '', i = 0, $months = this.$picker.find('.datepicker-months');
+
+    while (i < 12) {
+      html += '<span class="month">' + dictionary.monthsShort[i++] + '</span>';
+    }
+
+    $months.find('td').append(html);
+    $months.find('th:eq(1) a').text(this.date.getFullYear());
   };
 
   Datepicker.prototype._renderYears = function() {
