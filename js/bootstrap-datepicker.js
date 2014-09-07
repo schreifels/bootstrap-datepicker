@@ -100,6 +100,7 @@
   Datepicker.prototype.setDate = function(newDate, skipFieldUpdate) {
     var formatted;
 
+    this.oldDate = this.date || newDate;
     this.date = newDate;
 
     if (!skipFieldUpdate) {
@@ -140,7 +141,7 @@
     this.$picker.find('> div').hide().filter('.datepicker-' + viewModes[this.viewMode]).show();
   };
 
-  Datepicker.prototype.changePage = function(direction) {
+  Datepicker.prototype.setPage = function(direction) {
     var direction = (direction === 'next') ? 1 : -1;
 
     if (viewModes[this.viewMode] === 'days' || viewModes[this.viewMode] === 'months') {
@@ -215,21 +216,22 @@
 
     this.$picker.find('.datepicker-days tbody').html(html);
 
-    // months = this.$picker.find('.datepicker-months').find('th:eq(1)').
-    //               text(year).end().find('span').removeClass('active');
-    // if (thisYear === year) { months.eq(this.date.getMonth()).addClass('active'); }
-
-    this._renderYears();
+    if (this.oldDate.getMonth() !== this.date.getMonth()) { this._renderMonths(); }
+    if (this.oldDate.getFullYear() !== this.date.getFullYear()) { this._renderYears(); }
   };
 
   Datepicker.prototype._renderMonths = function() {
-    var html = '', i = 0, $months = this.$picker.find('.datepicker-months');
+    var html = '',
+        i = 0,
+        $months = this.$picker.find('.datepicker-months'),
+        thisMonth = this.date.getMonth();
 
     while (i < 12) {
-      html += '<span class="month">' + dictionary.monthsShort[i++] + '</span>';
+      html += '<span class="month' + (thisMonth === i ? ' active' : '') + '">' + dictionary.monthsShort[i] + '</span>';
+      i++;
     }
 
-    $months.find('td').append(html);
+    $months.find('td').html(html);
     $months.find('th:eq(1) a').text(this.date.getFullYear());
   };
 
@@ -267,6 +269,9 @@
         break;
       case 'setMode':
         this.setMode('next');
+        break;
+      case 'setPage':
+        this.setPage($target.data('direction'));
         break;
     }
   };
@@ -374,9 +379,9 @@
   function headTemplate(data) {
     return '<thead>' +
              '<tr>' +
-               '<th class="prev">&lsaquo;</th>' +
+               '<th class="prev"><a href="#" data-handler="setPage" data-direction="prev">&lsaquo;</a></th>' +
                '<th colspan="5"><a href="#" data-handler="' + data + '"></a></th>' +
-               '<th class="next">&rsaquo;</th>' +
+               '<th class="next"><a href="#" data-handler="setPage" data-direction="next">&rsaquo;</a></th>' +
              '</tr>' +
            '</thead>';
   }
