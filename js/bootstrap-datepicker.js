@@ -1,10 +1,9 @@
 /* ==========================================================================
  * bootstrap-datepicker.js
- * A lightweight Bootstrap-powered datepicker focused on usability and extensibility.
+ * A simple, lightweight Bootstrap-powered datepicker.
  * https://github.com/schreifels/removeable-bootstrap-datepicker
  * ==========================================================================
- * Based on Stefan Petre's bootstrap-datepicker (http://www.eyecon.ro/bootstrap-datepicker)
- * Updated and maintained by Mike Schreifels
+ * Started by Stefan Petre; improvements by Mike Schreifels
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +20,7 @@
 
 ;(function($) {
 
-  var Datepicker, defaults, tbodyTemplate, template, viewModes, dictionary;
+  var Datepicker, defaults, tbodyTemplate, template, dictionary;
 
   //////////////////////////////////////////////////////////////////////////////
   // Constructor
@@ -49,14 +48,13 @@
       }
     }
 
-    this.viewMode = viewModes.indexOf(this.$element.data('date-view-mode') || options.viewMode);
     this.weekStart = this.$element.data('date-week-start') || options.weekStart;
     this.weekEnd = this.weekStart === 0 ? 6 : this.weekStart - 1;
     this.onRender = options.onRender;
 
     this.setDate((this.isInput ? this.$element.prop('value') : this.$element.data('date')) || new Date(), true);
     this._renderDaysOfWeek();
-    this.setMode();
+    this.setMode('days');
   };
 
   //////////////////////////////////////////////////////////////////////////////
@@ -84,7 +82,6 @@
   Datepicker.prototype.hide = function() {
     this.$picker.hide();
     this._unbindEvents('boundWhenShown');
-    this.setMode();
     this.$element.trigger({ type: 'hidden.bs.datepicker', date: this.date });
   };
 
@@ -120,7 +117,7 @@
     this.$element.trigger({
       type: 'dateSet.bs.datepicker',
       date: this.date,
-      viewMode: viewModes[this.viewMode]
+      viewMode: this.viewMode
     });
   };
 
@@ -145,19 +142,15 @@
     });
   };
 
-  Datepicker.prototype.setMode = function(direction) {
-    if (direction) {
-      direction = (direction === 'next') ? 1 : -1;
-      // When we get to the last viewMode, wrap around the beginning
-      this.viewMode = (this.viewMode + direction) % viewModes.length;
-    }
-    this.$picker.find('> div').hide().filter('.datepicker-' + viewModes[this.viewMode]).show();
+  Datepicker.prototype.setMode = function(newMode) {
+    this.viewMode = newMode;
+    this.$picker.find('> div').hide().filter('.datepicker-' + this.viewMode).show();
   };
 
   Datepicker.prototype.setPage = function(direction) {
     var direction = (direction === 'next') ? 1 : -1;
 
-    if (viewModes[this.viewMode] === 'days' || viewModes[this.viewMode] === 'months') {
+    if (this.viewMode === 'days' || this.viewMode === 'months') {
       this.setViewport({ month: this._viewport.month + direction });
     } else {
       this.setViewport({ year: this._viewport.year + direction });
@@ -272,7 +265,7 @@
   //////////////////////////////////////////////////////////////////////////////
 
   Datepicker.prototype._click = function(e) {
-    var $target = $(e.target);
+    var $target = $(e.target), nextViewport;
 
     if (!$target.is('a')) { return; }
 
@@ -284,14 +277,15 @@
         this.setDate(new Date($target.data('year'), $target.data('month'), $target.data('day'), 0, 0, 0, 0));
         break;
       case 'setMode':
-        this.setMode('next');
+        this.setMode($target.data('next-mode'));
         break;
       case 'setPage':
         this.setPage($target.data('direction'));
         break;
       case 'setViewport':
-        this.setViewport({ year: $target.data('year'), month: $target.data('month') });
-        this.setMode('prev');
+        nextViewport = { year: $target.data('year'), month: $target.data('month') };
+        this.setViewport(nextViewport);
+        this.setMode(nextViewport.year ? 'months' : 'days');
         break;
     }
   };
@@ -328,7 +322,6 @@
 
   defaults = {
     format: 'mm/dd/yyyy',
-    viewMode: 'days',
     weekStart: 0,
     onRender: function(date) { return ''; }
   };
@@ -396,11 +389,11 @@
   // Template
   //////////////////////////////////////////////////////////////////////////////
 
-  function headTemplate(data) {
+  function headTemplate(nextMode) {
     return '<thead>' +
              '<tr>' +
                '<th class="prev"><a href="#" data-handler="setPage" data-direction="prev">&lsaquo;</a></th>' +
-               '<th colspan="5"><a href="#" data-handler="' + data + '"></a></th>' +
+               '<th colspan="5"><a href="#" data-handler="setMode" data-next-mode="' + nextMode + '"></a></th>' +
                '<th class="next"><a href="#" data-handler="setPage" data-direction="next">&rsaquo;</a></th>' +
              '</tr>' +
            '</thead>';
@@ -417,19 +410,19 @@
     '<div class="datepicker dropdown-menu">' +
       '<div class="datepicker-days">' +
         '<table class="table-condensed">' +
-          headTemplate('setMode') +
+          headTemplate('months') +
           '<tbody></tbody>' +
         '</table>' +
       '</div>' +
       '<div class="datepicker-months">' +
         '<table class="table-condensed">' +
-          headTemplate('setMode') +
+          headTemplate('years') +
           tbodyTemplate +
         '</table>' +
       '</div>' +
       '<div class="datepicker-years">' +
         '<table class="table-condensed">' +
-          headTemplate('setMode') +
+          headTemplate('days') +
           tbodyTemplate +
         '</table>' +
       '</div>' +
@@ -438,8 +431,6 @@
   //////////////////////////////////////////////////////////////////////////////
   // Reference
   //////////////////////////////////////////////////////////////////////////////
-
-  viewModes = ['days', 'months', 'years'];
 
   dictionary = {
     days:        ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
