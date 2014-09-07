@@ -57,7 +57,6 @@
 
     this.setDate((this.isInput ? this.$element.prop('value') : this.$element.data('date')) || new Date(), true);
     this._renderDaysOfWeek();
-    this._renderMonths();
     this.setMode();
   };
 
@@ -98,9 +97,13 @@
   };
 
   Datepicker.prototype.setDate = function(newDate, skipFieldUpdate) {
-    var formatted;
+    var formatted, newViewport;
 
-    this.oldDate = this.date || newDate;
+    newViewport = {
+      month: (!this.date || this.date.getMonth()    !== newDate.getMonth())    ? newDate.getMonth() : null,
+      year:  (!this.date || this.date.getFullYear() !== newDate.getFullYear()) ? newDate.getFullYear() : null
+    };
+
     this.date = newDate;
 
     if (!skipFieldUpdate) {
@@ -114,14 +117,26 @@
       }
     }
 
-    this.viewport = { year: this.date.getFullYear(), month: this.date.getMonth() };
-    this._renderDays();
+    this.setViewport(newViewport);
 
     this.$element.trigger({
       type: 'dateSet.bs.datepicker',
       date: this.date,
       viewMode: viewModes[this.viewMode]
     });
+  };
+
+  Datepicker.prototype.setViewport = function(newViewport) {
+    this._viewport || (this._viewport = {});
+    if (newViewport.month) {
+      this._viewport.month = newViewport.month;
+      this._renderMonths();
+    }
+    if (newViewport.year) {
+      this._viewport.year = newViewport.year;
+      this._renderYears();
+    }
+    this._renderDays();
   };
 
   Datepicker.prototype.place = function() {
@@ -145,12 +160,10 @@
     var direction = (direction === 'next') ? 1 : -1;
 
     if (viewModes[this.viewMode] === 'days' || viewModes[this.viewMode] === 'months') {
-      this.viewport.month = this.viewport.month + direction;
+      this.setViewport({ month: this._viewport.month + direction });
     } else {
-      this.viewport.year = this.viewport.year + direction;
+      this.setViewport({ year: this._viewport.year + direction });
     }
-
-    this._renderDays();
   };
 
   //////////////////////////////////////////////////////////////////////////////
@@ -162,7 +175,7 @@
         html = '<tr>';
 
     while (currentDay < this.weekStart + 7) {
-      html += '<th class="dow">' + dictionary.days[currentDay++ % 7] + '</th>';
+      html += '<th>' + dictionary.days[currentDay++ % 7] + '</th>';
     }
     html += '</tr>';
 
@@ -175,9 +188,9 @@
         currentDay, nextMonth, html, className, months,
         currentYear, currentMonth, currentDate;
 
-    this.$picker.find('.datepicker-days th:eq(1) a').text(dictionary.months[this.viewport.month] + ' ' + this.viewport.year);
+    this.$picker.find('.datepicker-days th:eq(1) a').text(dictionary.months[this._viewport.month] + ' ' + this._viewport.year);
 
-    currentDay = new Date(this.viewport.year, this.viewport.month, 0, 0, 0, 0, 0); // day 0 is the last day of the previous month
+    currentDay = new Date(this._viewport.year, this._viewport.month, 0, 0, 0, 0, 0); // day 0 is the last day of the previous month
     currentDay.setDate(currentDay.getDate() - ((currentDay.getDay() - this.weekStart + 7) % 7));
 
     nextMonth = new Date(currentDay);
@@ -192,9 +205,9 @@
       className    = this.onRender(currentDay);
 
       if (currentDay.getDay() === this.weekStart) { html += '<tr>'; }
-      if ((currentMonth < this.viewport.month &&  currentYear === this.viewport.year) || currentYear < this.viewport.year) {
+      if ((currentMonth < this._viewport.month &&  currentYear === this._viewport.year) || currentYear < this._viewport.year) {
         className += ' datepicker-old';
-      } else if ((currentMonth > this.viewport.month && currentYear === this.viewport.year) || currentYear > this.viewport.year) {
+      } else if ((currentMonth > this._viewport.month && currentYear === this._viewport.year) || currentYear > this._viewport.year) {
         className += ' datepicker-new';
       }
       if (currentDay.getTime() === today) { className += ' datepicker-selected'; }
@@ -215,9 +228,6 @@
     }
 
     this.$picker.find('.datepicker-days tbody').html(html);
-
-    if (this.oldDate.getMonth() !== this.date.getMonth()) { this._renderMonths(); }
-    if (this.oldDate.getFullYear() !== this.date.getFullYear()) { this._renderYears(); }
   };
 
   Datepicker.prototype._renderMonths = function() {
@@ -227,7 +237,12 @@
         thisMonth = this.date.getMonth();
 
     while (i < 12) {
-      html += '<span class="month' + (thisMonth === i ? ' active' : '') + '">' + dictionary.monthsShort[i] + '</span>';
+      html += '<a href="#"' +
+                  (thisMonth === i ? ' class="active"' : '') +
+                  ' data-handler="setViewport" ' +
+                  'data-month="' + i + '">' +
+                  dictionary.monthsShort[i] +
+              '</a>';
       i++;
     }
 
@@ -237,7 +252,7 @@
 
   Datepicker.prototype._renderYears = function() {
     var html        = '',
-        currentYear = parseInt(this.viewport.year / 10) * 10,
+        currentYear = parseInt(this._viewport.year / 10) * 10,
         $years      = this.$picker.find('.datepicker-years'),
         thisYear    = this.date.getFullYear();
 
@@ -272,6 +287,9 @@
         break;
       case 'setPage':
         this.setPage($target.data('direction'));
+        break;
+      case 'setViewport':
+        this.setViewport({ year: $target.data('year'), month: $target.data('month') });
         break;
     }
   };
