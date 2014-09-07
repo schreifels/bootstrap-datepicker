@@ -10,8 +10,6 @@ The goal is to maintain a lightweight, extensible library that covers the most c
 $('.datepicker').datepicker(options)
 ```
 
-Options can also be specified with ```data``` attributes by prepending the option name with ```data-date-```. For example, you could set ```minViewMode``` with ```data-date-min-view-mode```.
-
 ## Demo
 
 https://schreifels.github.io/bootstrap-datepicker
@@ -44,7 +42,6 @@ Name        | Type     | Default                      | Description
 ----------- | -------- | ---------------------------- | -----------
 format      | string   | 'mm/dd/yyyy'                 | Date format; combination of d, dd, m, mm, yy, yyyy; separator can be any non-alphanumeric character except underscore
 weekStart   | integer  | 0                            | Day of the week start; 0 for Sunday, 6 for Sunday
-onRender    | function | function(day) { return ''; } | Called when a day is rendered in the datepicker; return 'disabled' to prevent the day from being selectable
 
 ## Events
 

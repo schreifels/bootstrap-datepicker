@@ -27,11 +27,13 @@
   //////////////////////////////////////////////////////////////////////////////
 
   Datepicker = function(element, options) {
+    var initialDate;
+
     this.$element = $(element);
     this.$picker  = $(template).appendTo('body');
     this.$addOn   = this.$element.is('.date') ? this.$element.find('.add-on') : null;
 
-    this.format  = parseFormat(this.$element.data('date-format') || options.format);
+    this.format  = parseFormat(options.format);
     this.isInput = this.$element.is('input');
 
     this.$picker.on('click', $.proxy(this._click, this));
@@ -48,10 +50,11 @@
       }
     }
 
-    this.weekStart = this.$element.data('date-week-start') || options.weekStart;
+    this.weekStart = options.weekStart;
     this.weekEnd = this.weekStart === 0 ? 6 : this.weekStart - 1;
 
-    this.setDate((this.isInput ? this.$element.prop('value') : this.$element.data('date')) || new Date(), true);
+    initialDate = this.isInput ? this.$element.prop('value') : options.date;
+    this.setDate(initialDate ? parseDate(initialDate, this.format) : new Date(), true);
     this._renderDaysOfWeek();
     this.setMode('days');
   };
@@ -314,10 +317,11 @@
 
   $.fn.datepicker = function(option, val) {
     return this.each(function() {
-      var $this   = $(this),
-          data    = $this.data('bs.datepicker'),
-          options = $.extend({}, defaults, $this.data(), typeof option === 'object' && option);
-      if (!data) { $this.data('bs.datepicker', (data = new Datepicker(this, options))); }
+      var $this = $(this), data = $this.data('bs.datepicker'), options;
+      if (!data) {
+        options = $.extend({}, defaults, $this.data(), typeof option === 'object' && option);
+        $this.data('bs.datepicker', (data = new Datepicker(this, options)));
+      }
       if (typeof option === 'string') { data[option](val); }
     });
   };
