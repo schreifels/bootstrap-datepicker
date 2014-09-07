@@ -44,8 +44,6 @@ Name        | Type     | Default                      | Description
 ----------- | -------- | ---------------------------- | -----------
 format      | string   | 'mm/dd/yyyy'                 | Date format; combination of d, dd, m, mm, yy, yyyy; separator can be any non-alphanumeric character except underscore
 weekStart   | integer  | 0                            | Day of the week start; 0 for Sunday, 6 for Sunday
-viewMode    | string   | 'days'                       | Start view mode; days, months, or years
-minViewMode | string   | 'days'                       | Limit for view mode; days, months, or years
 onRender    | function | function(day) { return ''; } | Called when a day is rendered in the datepicker; return 'disabled' to prevent the day from being selectable
 
 ## Events

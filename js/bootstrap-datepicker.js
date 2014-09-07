@@ -50,7 +50,6 @@
     }
 
     this.viewMode = viewModes.indexOf(this.$element.data('date-view-mode') || options.viewMode);
-    this.startViewMode = this.viewMode;
     this.weekStart = this.$element.data('date-week-start') || options.weekStart;
     this.weekEnd = this.weekStart === 0 ? 6 : this.weekStart - 1;
     this.onRender = options.onRender;
@@ -85,7 +84,6 @@
   Datepicker.prototype.hide = function() {
     this.$picker.hide();
     this._unbindEvents('boundWhenShown');
-    this.viewMode = this.startViewMode;
     this.setMode();
     this.$element.trigger({ type: 'hidden.bs.datepicker', date: this.date });
   };
