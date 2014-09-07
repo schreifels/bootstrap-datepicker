@@ -128,11 +128,11 @@
 
   Datepicker.prototype.setViewport = function(newViewport) {
     this._viewport || (this._viewport = {});
-    if (newViewport.month) {
+    if (typeof newViewport.month === 'number') {
       this._viewport.month = newViewport.month;
       this._renderMonths();
     }
-    if (newViewport.year) {
+    if (typeof newViewport.year === 'number') {
       this._viewport.year = newViewport.year;
       this._renderYears();
     }
@@ -231,23 +231,19 @@
   };
 
   Datepicker.prototype._renderMonths = function() {
-    var html = '',
-        i = 0,
-        $months = this.$picker.find('.datepicker-months'),
-        thisMonth = this.date.getMonth();
+    var html = '', i = 0, thisMonth = this.date.getMonth();
 
     while (i < 12) {
-      html += '<a href="#"' +
-                  (thisMonth === i ? ' class="active"' : '') +
-                  ' data-handler="setViewport" ' +
-                  'data-month="' + i + '">' +
-                  dictionary.monthsShort[i] +
+      html += '<a href="#" ' +
+                  (thisMonth === i ? 'class="active" ' : '') +
+                  'data-handler="setViewport" ' +
+                  'data-month="' + i + '"' +
+                  '>' + dictionary.monthsShort[i] +
               '</a>';
       i++;
     }
 
-    $months.find('td').html(html);
-    $months.find('th:eq(1) a').text(this.date.getFullYear());
+    this.$picker.find('.datepicker-months td').html(html);
   };
 
   Datepicker.prototype._renderYears = function() {
@@ -261,9 +257,16 @@
 
     currentYear -= 1;
     for (i = -1; i < 11; i++) {
-      html += '<span class="year' + (thisYear === currentYear ? ' active' : '') + '">' + currentYear++ + '</span>';
+      html += '<a href="#"' +
+                  (thisYear === currentYear ? ' class="active"' : '') +
+                  ' data-handler="setViewport"' +
+                  ' data-year="' + currentYear + '"' +
+                  '>' + currentYear + '</a>';
+      currentYear++;
     }
     $years.html(html);
+
+    this.$picker.find('.datepicker-months th:eq(1) a').text(this._viewport.year);
   };
 
   //////////////////////////////////////////////////////////////////////////////
@@ -271,7 +274,7 @@
   //////////////////////////////////////////////////////////////////////////////
 
   Datepicker.prototype._click = function(e) {
-    var $target = $(e.target), year, month, day;
+    var $target = $(e.target);
 
     if (!$target.is('a')) { return; }
 
@@ -290,6 +293,7 @@
         break;
       case 'setViewport':
         this.setViewport({ year: $target.data('year'), month: $target.data('month') });
+        this.setMode('prev');
         break;
     }
   };
