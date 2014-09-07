@@ -157,10 +157,12 @@
   Datepicker.prototype.setPage = function(direction) {
     var direction = (direction === 'next') ? 1 : -1;
 
-    if (this.viewMode === 'days' || this.viewMode === 'months') {
+    if (this.viewMode === 'days') {
       this.setViewport({ month: this._viewport.month + direction });
-    } else {
+    } else if (this.viewMode === 'months') {
       this.setViewport({ year: this._viewport.year + direction });
+    } else if (this.viewMode === 'years') {
+      this.setViewport({ year: this._viewport.year + direction * 10 });
     }
   };
 
@@ -400,7 +402,7 @@
     return '<thead>' +
              '<tr>' +
                '<th class="prev"><a href="#" data-handler="setPage" data-direction="prev">&lsaquo;</a></th>' +
-               '<th colspan="5"><a href="#" data-handler="setMode" data-next-mode="' + nextMode + '"></a></th>' +
+               '<th colspan="5"><a href="#"' + (nextMode ? ' data-handler="setMode" data-next-mode="' + nextMode + '"' : '') + '></a></th>' +
                '<th class="next"><a href="#" data-handler="setPage" data-direction="next">&rsaquo;</a></th>' +
              '</tr>' +
            '</thead>';
@@ -429,7 +431,7 @@
       '</div>' +
       '<div class="datepicker-years">' +
         '<table class="table-condensed">' +
-          headTemplate('days') +
+          headTemplate() +
           tbodyTemplate +
         '</table>' +
       '</div>' +
