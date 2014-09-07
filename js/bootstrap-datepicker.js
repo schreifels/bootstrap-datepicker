@@ -74,6 +74,11 @@
         this.hide();
       }
     }, this));
+    if (!this.addOn) {
+      this._bindEvent('boundWhenShown', this.$element, 'keydown', $.proxy(function(ev) {
+        if (ev.which === 9) { this.hide(); }
+      }, this));
+    }
 
     this.$element.trigger({ type: 'shown.bs.datepicker', date: this.date });
   };
