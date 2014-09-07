@@ -129,13 +129,13 @@
   };
 
   Datepicker.prototype.setViewport = function(newViewport) {
-    this._viewport || (this._viewport = {});
+    this.viewport || (this.viewport = {});
     if (typeof newViewport.month === 'number') {
-      this._viewport.month = newViewport.month;
+      this.viewport.month = newViewport.month;
       this._renderMonths();
     }
     if (typeof newViewport.year === 'number') {
-      this._viewport.year = newViewport.year;
+      this.viewport.year = newViewport.year;
       this._renderYears();
     }
     this._renderDays();
@@ -158,11 +158,11 @@
     var direction = (direction === 'next') ? 1 : -1;
 
     if (this.viewMode === 'days') {
-      this.setViewport({ month: this._viewport.month + direction });
+      this.setViewport({ month: this.viewport.month + direction });
     } else if (this.viewMode === 'months') {
-      this.setViewport({ year: this._viewport.year + direction });
+      this.setViewport({ year: this.viewport.year + direction });
     } else if (this.viewMode === 'years') {
-      this.setViewport({ year: this._viewport.year + direction * 10 });
+      this.setViewport({ year: this.viewport.year + direction * 10 });
     }
   };
 
@@ -188,9 +188,9 @@
         currentDay, nextMonth, html, className, months,
         currentYear, currentMonth, currentDate;
 
-    this.$picker.find('.datepicker-days th:eq(1) a').text(dictionary.months[this._viewport.month] + ' ' + this._viewport.year);
+    this.$picker.find('.datepicker-days th:eq(1) a').text(dictionary.months[this.viewport.month] + ' ' + this.viewport.year);
 
-    currentDay = new Date(this._viewport.year, this._viewport.month, 0, 0, 0, 0, 0); // day 0 is the last day of the previous month
+    currentDay = new Date(this.viewport.year, this.viewport.month, 0, 0, 0, 0, 0); // day 0 is the last day of the previous month
     currentDay.setDate(currentDay.getDate() - ((currentDay.getDay() - this.weekStart + 7) % 7));
 
     nextMonth = new Date(currentDay);
@@ -205,9 +205,9 @@
       className    = '';
 
       if (currentDay.getDay() === this.weekStart) { html += '<tr>'; }
-      if ((currentMonth < this._viewport.month &&  currentYear === this._viewport.year) || currentYear < this._viewport.year) {
+      if ((currentMonth < this.viewport.month &&  currentYear === this.viewport.year) || currentYear < this.viewport.year) {
         className += ' datepicker-old';
-      } else if ((currentMonth > this._viewport.month && currentYear === this._viewport.year) || currentYear > this._viewport.year) {
+      } else if ((currentMonth > this.viewport.month && currentYear === this.viewport.year) || currentYear > this.viewport.year) {
         className += ' datepicker-new';
       }
       if (currentDay.getTime() === today) { className += ' datepicker-selected'; }
@@ -248,7 +248,7 @@
 
   Datepicker.prototype._renderYears = function() {
     var html        = '',
-        currentYear = parseInt(this._viewport.year / 10) * 10,
+        currentYear = parseInt(this.viewport.year / 10) * 10,
         $years      = this.$picker.find('.datepicker-years'),
         thisYear    = this.date.getFullYear();
 
@@ -266,7 +266,7 @@
     }
     $years.html(html);
 
-    this.$picker.find('.datepicker-months th:eq(1) a').text(this._viewport.year);
+    this.$picker.find('.datepicker-months th:eq(1) a').text(this.viewport.year);
   };
 
   //////////////////////////////////////////////////////////////////////////////
@@ -300,15 +300,15 @@
   };
 
   Datepicker.prototype._bindEvent = function(category, $el, event, handler) {
-    this._events || (this._events = {});
-    this._events[category] || (this._events[category] = []);
+    this.events || (this.events = {});
+    this.events[category] || (this.events[category] = []);
 
     $el.on(event, handler);
-    this._events[category].push([$el, event, handler]);
+    this.events[category].push([$el, event, handler]);
   };
 
   Datepicker.prototype._unbindEvents = function(category) {
-    $.each(this._events[category], function(index, e) {
+    $.each(this.events[category], function(index, e) {
       e[0].off(e[1], e[2]);
     });
   };
