@@ -50,7 +50,6 @@
 
     this.weekStart = this.$element.data('date-week-start') || options.weekStart;
     this.weekEnd = this.weekStart === 0 ? 6 : this.weekStart - 1;
-    this.onRender = options.onRender;
 
     this.setDate((this.isInput ? this.$element.prop('value') : this.$element.data('date')) || new Date(), true);
     this._renderDaysOfWeek();
@@ -193,7 +192,7 @@
       currentYear  = currentDay.getFullYear();
       currentMonth = currentDay.getMonth();
       currentDate  = currentDay.getDate();
-      className    = this.onRender(currentDay);
+      className    = '';
 
       if (currentDay.getDay() === this.weekStart) { html += '<tr>'; }
       if ((currentMonth < this._viewport.month &&  currentYear === this._viewport.year) || currentYear < this._viewport.year) {
@@ -322,8 +321,7 @@
 
   defaults = {
     format: 'mm/dd/yyyy',
-    weekStart: 0,
-    onRender: function(date) { return ''; }
+    weekStart: 0
   };
 
   //////////////////////////////////////////////////////////////////////////////
