@@ -3,7 +3,7 @@
  * A simple, lightweight Bootstrap-powered datepicker.
  * https://github.com/schreifels/removeable-bootstrap-datepicker
  * ==========================================================================
- * Started by Stefan Petre; improvements by Mike Schreifels
+ * By Mike Schreifels, based on Stefan Petre's http://www.eyecon.ro/bootstrap-datepicker/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
