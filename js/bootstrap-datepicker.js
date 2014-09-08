@@ -130,14 +130,24 @@
 
   Datepicker.prototype.setViewport = function(newViewport) {
     this.viewport || (this.viewport = {});
+
     if (typeof newViewport.month === 'number') {
-      this.viewport.month = newViewport.month;
+      // 0 is January, 11 is December, 12 is January, -1 is December, etc.
+      this.viewport.month = newViewport.month % 12;
+      if (this.viewport.month < 0) { this.viewport.month += 12; }
+      if (newViewport.month < 0 || newViewport.month > 11) {
+        newViewport.year || (newViewport.year = this.viewport.year);
+        newViewport.year += Math.floor(newViewport.month / 12);
+      }
+
       this._renderMonths();
     }
+
     if (typeof newViewport.year === 'number') {
       this.viewport.year = newViewport.year;
       this._renderYears();
     }
+
     this._renderDays();
   };
 
@@ -151,7 +161,7 @@
 
   Datepicker.prototype.setMode = function(newMode) {
     this.viewMode = newMode;
-    this.$picker.find('> div').hide().filter('.datepicker-' + this.viewMode).show();
+    this.$picker.find('table').hide().filter('.datepicker-' + this.viewMode).show();
   };
 
   Datepicker.prototype.setPage = function(direction) {
@@ -171,10 +181,11 @@
   //////////////////////////////////////////////////////////////////////////////
 
   Datepicker.prototype._renderDaysOfWeek = function() {
-    var currentDay = this.weekStart,
-        html = '<tr>';
+    var i,
+        currentDay = this.weekStart,
+        html = '<tr class="datepicker-days-of-week">';
 
-    while (currentDay < this.weekStart + 7) {
+    for (i = 0; i < 7; i++) {
       html += '<th>' + dictionary.days[currentDay++ % 7] + '</th>';
     }
     html += '</tr>';
@@ -205,21 +216,19 @@
       className    = '';
 
       if (currentDay.getDay() === this.weekStart) { html += '<tr>'; }
-      if ((currentMonth < this.viewport.month &&  currentYear === this.viewport.year) || currentYear < this.viewport.year) {
-        className += ' datepicker-old';
-      } else if ((currentMonth > this.viewport.month && currentYear === this.viewport.year) || currentYear > this.viewport.year) {
-        className += ' datepicker-new';
+      if (currentMonth !== this.viewport.month || currentYear !== this.viewport.year) {
+        className += 'datepicker-outside ';
       }
-      if (currentDay.getTime() === today) { className += ' datepicker-selected'; }
+      if (currentDay.getTime() === today) { className += 'datepicker-active '; }
       html += (
         '<td>' +
-          '<a href="#" ' +
-               'data-handler="setDate" ' +
-               'data-year="' + currentYear + '" ' +
-               'data-month="' + currentMonth + '" ' +
-               'data-day="' + currentDate + '" ' +
-               'class="' + className + '">' +
-               currentDay.getDate() +
+          '<a href="#"' +
+               ' data-handler="setDate"' +
+               ' data-year="' + currentYear + '"' +
+               ' data-month="' + currentMonth + '"' +
+               ' data-day="' + currentDate + '"' +
+               ' class="' + className + '"' +
+               '>' + currentDay.getDate() +
           '</a>' +
         '</td>'
       );
@@ -231,40 +240,38 @@
   };
 
   Datepicker.prototype._renderMonths = function() {
-    var html = '', i = 0, thisMonth = this.date.getMonth();
+    var i, html = '', thisMonth = this.date.getMonth();
 
-    while (i < 12) {
-      html += '<a href="#" ' +
-                  (thisMonth === i ? 'class="active" ' : '') +
-                  'data-handler="setViewport" ' +
-                  'data-month="' + i + '"' +
+    for (i = 0; i < 12; i++) {
+      html += '<a href="#"' +
+                  (thisMonth === i ? ' class="datepicker-active"' : '') +
+                  ' data-handler="setViewport"' +
+                  ' data-month="' + i + '"' +
                   '>' + dictionary.monthsShort[i] +
               '</a>';
-      i++;
     }
 
     this.$picker.find('.datepicker-months td').html(html);
   };
 
   Datepicker.prototype._renderYears = function() {
-    var html        = '',
-        currentYear = parseInt(this.viewport.year / 10) * 10,
+    var i,
+        html        = '',
+        currentYear = parseInt(this.viewport.year / 10) * 10, // start of decade
         $years      = this.$picker.find('.datepicker-years'),
         thisYear    = this.date.getFullYear();
 
     $years.find('th:eq(1) a').text(currentYear + '-' + (currentYear + 9));
-    $years = $years.find('td');
 
-    currentYear -= 1;
-    for (i = -1; i < 11; i++) {
+    for (i = 0; i < 10; i++) {
       html += '<a href="#"' +
-                  (thisYear === currentYear ? ' class="active"' : '') +
+                  (thisYear === currentYear ? ' class="datepicker-active"' : '') +
                   ' data-handler="setViewport"' +
                   ' data-year="' + currentYear + '"' +
                   '>' + currentYear + '</a>';
       currentYear++;
     }
-    $years.html(html);
+    $years.find('td').html(html);
 
     this.$picker.find('.datepicker-months th:eq(1) a').text(this.viewport.year);
   };
@@ -401,9 +408,9 @@
   function headTemplate(nextMode) {
     return '<thead>' +
              '<tr>' +
-               '<th class="prev"><a href="#" data-handler="setPage" data-direction="prev">&lsaquo;</a></th>' +
+               '<th><a href="#" data-handler="setPage" data-direction="prev">&lsaquo;</a></th>' +
                '<th colspan="5"><a href="#"' + (nextMode ? ' data-handler="setMode" data-next-mode="' + nextMode + '"' : '') + '></a></th>' +
-               '<th class="next"><a href="#" data-handler="setPage" data-direction="next">&rsaquo;</a></th>' +
+               '<th><a href="#" data-handler="setPage" data-direction="next">&rsaquo;</a></th>' +
              '</tr>' +
            '</thead>';
   }
@@ -417,24 +424,18 @@
 
   template =
     '<div class="datepicker dropdown-menu">' +
-      '<div class="datepicker-days">' +
-        '<table class="table-condensed">' +
-          headTemplate('months') +
-          '<tbody></tbody>' +
-        '</table>' +
-      '</div>' +
-      '<div class="datepicker-months">' +
-        '<table class="table-condensed">' +
-          headTemplate('years') +
-          tbodyTemplate +
-        '</table>' +
-      '</div>' +
-      '<div class="datepicker-years">' +
-        '<table class="table-condensed">' +
-          headTemplate() +
-          tbodyTemplate +
-        '</table>' +
-      '</div>' +
+      '<table class="datepicker-days table-condensed">' +
+        headTemplate('months') +
+        '<tbody></tbody>' +
+      '</table>' +
+      '<table class="datepicker-months table-condensed">' +
+        headTemplate('years') +
+        tbodyTemplate +
+      '</table>' +
+      '<table class="datepicker-years table-condensed">' +
+        headTemplate() +
+        tbodyTemplate +
+      '</table>' +
     '</div>';
 
   //////////////////////////////////////////////////////////////////////////////
