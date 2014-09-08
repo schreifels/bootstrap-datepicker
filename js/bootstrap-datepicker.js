@@ -226,9 +226,8 @@
                ' data-handler="setDate"' +
                ' data-year="' + currentYear + '"' +
                ' data-month="' + currentMonth + '"' +
-               ' data-day="' + currentDate + '"' +
                ' class="' + className + '"' +
-               '>' + currentDay.getDate() +
+               '>' + currentDate +
           '</a>' +
         '</td>'
       );
@@ -290,7 +289,7 @@
 
     switch ($target.data('handler')) {
       case 'setDate':
-        this.setDate(new Date($target.data('year'), $target.data('month'), $target.data('day'), 0, 0, 0, 0));
+        this.setDate(new Date($target.data('year'), $target.data('month'), $target.text(), 0, 0, 0, 0));
         break;
       case 'setMode':
         this.setMode($target.data('next-mode'));
