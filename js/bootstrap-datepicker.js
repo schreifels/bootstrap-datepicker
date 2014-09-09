@@ -31,7 +31,7 @@
 
     this.$element = $(element);
     this.$picker  = $(template).appendTo('body');
-    this.$addOn   = this.$element.is('.date') ? this.$element.find('.add-on') : null;
+    this.$addOn   = this.$element.is('.input-group') ? this.$element.find('.input-group-addon') : null;
 
     this.format  = parseFormat(options.format);
     this.isInput = this.$element.is('input');
