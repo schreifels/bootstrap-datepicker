@@ -67,29 +67,28 @@
     if (e) { e.stopPropagation(); e.preventDefault(); }
 
     this.$picker.show();
-    this.height = this.$addOn ? this.$addOn.outerHeight() : this.$element.outerHeight();
     this.place();
 
     this._bindEvent('boundWhenShown', $(window), 'resize', $.proxy(this.place, this));
     this._bindEvent('boundWhenShown', $(document), 'mousedown', $.proxy(function(ev) {
       var $target = $(ev.target);
-      if (!$target.is(this.$element) && $target.closest('.datepicker').length === 0) {
+      if ($target.closest(this.$element).length === 0 && $target.closest('.datepicker').length === 0) {
         this.hide();
       }
     }, this));
-    if (!this.addOn) {
+    if (this.isInput) {
       this._bindEvent('boundWhenShown', this.$element, 'keydown', $.proxy(function(ev) {
         if (ev.which === 9) { this.hide(); }
       }, this));
     }
 
-    this.$element.trigger({ type: 'shown.bs.datepicker', date: this.date });
+    this.$element.trigger({ type: 'shown.bs.datepicker' });
   };
 
   Datepicker.prototype.hide = function() {
     this.$picker.hide();
     this._unbindEvents('boundWhenShown');
-    this.$element.trigger({ type: 'hidden.bs.datepicker', date: this.date });
+    this.$element.trigger({ type: 'hidden.bs.datepicker' });
   };
 
   Datepicker.prototype.remove = function() {
@@ -107,6 +106,7 @@
     };
 
     this.date = newDate;
+    this.setViewport(newViewport);
 
     if (!skipFieldUpdate) {
       formatted = formatDate(this.date, this.format);
@@ -119,13 +119,7 @@
       }
     }
 
-    this.setViewport(newViewport);
-
-    this.$element.trigger({
-      type: 'dateSet.bs.datepicker',
-      date: this.date,
-      viewMode: this.viewMode
-    });
+    this.$element.trigger({ type: 'dateSet.bs.datepicker', date: this.date });
   };
 
   Datepicker.prototype.setViewport = function(newViewport) {
@@ -152,26 +146,24 @@
   };
 
   Datepicker.prototype.place = function() {
-    var offset = this.$addOn ? this.$addOn.offset() : this.$element.offset();
-    this.$picker.css({
-      top: offset.top + this.height,
-      left: offset.left
-    });
+    var height = this.$addOn ? this.$addOn.outerHeight() : this.$element.outerHeight(),
+        offset = this.$addOn ? this.$addOn.offset()      : this.$element.offset();
+    this.$picker.css({ top: offset.top + height, left: offset.left });
   };
 
   Datepicker.prototype.setMode = function(newMode) {
-    this.viewMode = newMode;
-    this.$picker.find('table').hide().filter('.datepicker-' + this.viewMode).show();
+    this.mode = newMode;
+    this.$picker.find('table').hide().filter('.datepicker-' + this.mode).show();
   };
 
   Datepicker.prototype.setPage = function(direction) {
     var direction = (direction === 'next') ? 1 : -1;
 
-    if (this.viewMode === 'days') {
+    if (this.mode === 'days') {
       this.setViewport({ month: this.viewport.month + direction });
-    } else if (this.viewMode === 'months') {
+    } else if (this.mode === 'months') {
       this.setViewport({ year: this.viewport.year + direction });
-    } else if (this.viewMode === 'years') {
+    } else if (this.mode === 'years') {
       this.setViewport({ year: this.viewport.year + direction * 10 });
     }
   };
@@ -292,7 +284,7 @@
         this.setDate(new Date($target.data('year'), $target.data('month'), $target.text(), 0, 0, 0, 0));
         break;
       case 'setMode':
-        this.setMode($target.data('next-mode'));
+        this.setMode($target.data('mode'));
         break;
       case 'setPage':
         this.setPage($target.data('direction'));
@@ -408,7 +400,7 @@
     return '<thead>' +
              '<tr>' +
                '<th><a href="#" data-handler="setPage" data-direction="prev">&lsaquo;</a></th>' +
-               '<th colspan="5"><a href="#"' + (nextMode ? ' data-handler="setMode" data-next-mode="' + nextMode + '"' : '') + '></a></th>' +
+               '<th colspan="5"><a href="#"' + (nextMode ? ' data-handler="setMode" data-mode="' + nextMode + '"' : '') + '></a></th>' +
                '<th><a href="#" data-handler="setPage" data-direction="next">&rsaquo;</a></th>' +
              '</tr>' +
            '</thead>';

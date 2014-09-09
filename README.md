@@ -49,4 +49,4 @@ Event                      | Description
 -------------------------- | -----------
 shown.bs.datepicker        | Fired after the datepicker has been displayed to the user.
 hidden.bs.datepicker       | Fired after the datepicker has been hidden from the user.
-dateSelected.bs.datepicker | Fired after the user selects a date.
+dateSet.bs.datepicker      | Fired after the user enters or selects a date.
