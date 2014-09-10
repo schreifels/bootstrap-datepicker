@@ -32,9 +32,16 @@
     this.$element = $(element);
     this.$picker  = $(template).appendTo('body');
     this.$addOn   = this.$element.is('.input-group') ? this.$element.find('.input-group-addon') : null;
+    this.isInput  = this.$element.is('input');
 
-    this.format  = parseFormat(options.format);
-    this.isInput = this.$element.is('input');
+    this.format    = parseFormat(options.format);
+    this.weekStart = options.weekStart;
+    this.weekEnd   = this.weekStart === 0 ? 6 : this.weekStart - 1;
+
+    initialDate = this.isInput ? this.$element.prop('value') : options.date;
+    this.setDate(initialDate ? parseDate(initialDate, this.format) : new Date(), true);
+    this._renderDaysOfWeek();
+    this.setMode('days');
 
     this.$picker.on('click', $.proxy(this._click, this));
     if (this.isInput) {
@@ -49,14 +56,6 @@
         this._bindEvent('alwaysBound', this.$element, 'click', $.proxy(this.show, this));
       }
     }
-
-    this.weekStart = options.weekStart;
-    this.weekEnd = this.weekStart === 0 ? 6 : this.weekStart - 1;
-
-    initialDate = this.isInput ? this.$element.prop('value') : options.date;
-    this.setDate(initialDate ? parseDate(initialDate, this.format) : new Date(), true);
-    this._renderDaysOfWeek();
-    this.setMode('days');
   };
 
   //////////////////////////////////////////////////////////////////////////////
@@ -113,7 +112,7 @@
       if (this.$addOn) {
         this.$element.find('input').prop('value', formatted);
       } else if (this.isInput) {
-        this.$element.prop('value', formatted);
+        this.$element.val(formatted);
       } else {
         this.$element.data('date', formatted);
       }
@@ -146,8 +145,8 @@
   };
 
   Datepicker.prototype.place = function() {
-    var height = this.$addOn ? this.$addOn.outerHeight() : this.$element.outerHeight(),
-        offset = this.$addOn ? this.$addOn.offset()      : this.$element.offset();
+    var height = this.$element.outerHeight(),
+        offset = this.$element.offset();
     this.$picker.css({ top: offset.top + height, left: offset.left });
   };
 

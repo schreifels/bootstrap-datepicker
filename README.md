@@ -38,15 +38,16 @@ https://schreifels.github.io/bootstrap-datepicker
 
 ## Options
 
-Name        | Type     | Default                      | Description
------------ | -------- | ---------------------------- | -----------
-format      | string   | 'mm/dd/yyyy'                 | Date format; combination of d, dd, m, mm, yy, yyyy; separator can be any non-alphanumeric character except underscore
-weekStart   | integer  | 0                            | Day of the week start; 0 for Sunday, 6 for Sunday
+Name              | Type     | Default                         | Description
+----------------- | -------- | ------------------------------- | -----------
+```format```      | string   | 'mm/dd/yyyy'                    | Date format; combination of d, dd, m, mm, yy, yyyy; separator can be any non-alphanumeric character except underscore
+```weekStart```   | integer  | 0                               | Day of the week start; 0 for Sunday, 6 for Sunday
+```date```        | string   | Today's date using ```format``` | Default selected date; if datepicker is attached to an ```input``` element, it will ignore this option and use the value of the input
 
 ## Events
 
-Event                      | Description
--------------------------- | -----------
-shown.bs.datepicker        | Fired after the datepicker has been displayed to the user.
-hidden.bs.datepicker       | Fired after the datepicker has been hidden from the user.
-dateSet.bs.datepicker      | Fired after the user enters or selects a date.
+Event                            | Description
+-------------------------------- | -----------
+```shown.bs.datepicker```        | Fired after the datepicker has been displayed to the user.
+```hidden.bs.datepicker```       | Fired after the datepicker has been hidden from the user.
+```dateSet.bs.datepicker```      | Fired after the user enters or selects a date.
