@@ -26,14 +26,14 @@
   width: 190px;
 }
 
-.datepicker tbody > tr > td,
-.datepicker thead > tr > th {
-  text-align: center;
+.datepicker thead > tr > th,
+.datepicker tbody > tr > td {
   padding: 1px;
+  text-align: center;
 }
 
-.datepicker tbody > tr > td a,
 .datepicker thead > tr > th a,
+.datepicker tbody > tr > td a,
 .datepicker .datepicker-days-of-week th {
   padding: 4px;
 }
@@ -66,9 +66,9 @@
 
 .datepicker .datepicker-months tbody a,
 .datepicker .datepicker-years tbody a {
-  float: left;
+  display: inline-block;
   width: 45px;
   height: 45px;
-  line-height: 37px;
   margin: 1px;
+  line-height: 37px;
 }
