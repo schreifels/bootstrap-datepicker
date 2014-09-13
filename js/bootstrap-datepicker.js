@@ -99,6 +99,7 @@
   Datepicker.prototype.setDate = function(newDate, skipFieldUpdate) {
     var formatted, newViewport = {};
 
+    newDate.setHours(0, 0, 0, 0);
     if (this.date && this.date.getTime() === newDate.getTime()) { return; }
 
     newViewport = {
@@ -349,10 +350,7 @@
     var parts = String(dateString).split(/\W+/),
         date = new Date();
 
-    date.setHours(0);
-    date.setMinutes(0);
-    date.setSeconds(0);
-    date.setMilliseconds(0);
+    date.setHours(0, 0, 0, 0);
 
     $.each(format.parts, function(index, formatPart) {
       if (!parts[index]) { return; }
