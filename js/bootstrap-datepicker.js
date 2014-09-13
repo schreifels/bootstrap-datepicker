@@ -18,7 +18,12 @@
  * limitations under the License.
  * ========================================================================== */
 
-;(function($) {
+/* jshint indent: 2, undef: true, unused: true, strict: true, camelcase: true,
+          curly: true, eqeqeq: true, es3: true, freeze: true, immed: true,
+          latedef: true, newcap: true, nonew: true, quotmark: single */
+/* global window, document, jQuery */
+
+(function($) {
   'use strict';
 
   var Datepicker, defaults, tbodyTemplate, template, dictionary;
@@ -32,7 +37,7 @@
 
     this.$element = $(element);
     this.$input   = this.$element.is('input') ? this.$element : this.$element.find('input');
-    this.$input   = this.$input.length === 0 ? null : this.$input
+    this.$input   = this.$input.length === 0 ? null : this.$input;
     this.$addOn   = this.$element.is('.input-group') ? this.$element.find('.input-group-addon') : null;
     this.$picker  = $(template).appendTo('body');
 
@@ -122,19 +127,19 @@
       }
     }
 
-    this.$element.data('date', this.date)
+    this.$element.data('date', this.date);
     this.$element.trigger({ type: 'dateChanged.bs.datepicker', date: this.date });
   };
 
   Datepicker.prototype.setViewport = function(newViewport) {
-    this.viewport || (this.viewport = {});
+    this.viewport = this.viewport || {};
 
     if (typeof newViewport.month === 'number') {
       // 0 is January, 11 is December, 12 is January, -1 is December, etc.
       this.viewport.month = newViewport.month % 12;
       if (this.viewport.month < 0) { this.viewport.month += 12; }
       if (newViewport.month < 0 || newViewport.month > 11) {
-        newViewport.year || (newViewport.year = this.viewport.year);
+        newViewport.year = newViewport.year || this.viewport.year;
         newViewport.year += Math.floor(newViewport.month / 12);
       }
 
@@ -161,7 +166,7 @@
   };
 
   Datepicker.prototype.setPage = function(direction) {
-    var direction = (direction === 'next') ? 1 : -1;
+    direction = (direction === 'next') ? 1 : -1;
 
     if (this.mode === 'days') {
       this.setViewport({ month: this.viewport.month + direction });
@@ -249,10 +254,10 @@
 
   Datepicker.prototype._renderYears = function() {
     var i, html, $years, classAttr, currentYear,
-        decadeStart = parseInt(this.viewport.year / 10) * 10,
+        decadeStart = parseInt(this.viewport.year / 10, 10) * 10,
         thisYear    = this.date.getFullYear();
 
-    html = ''
+    html = '';
     for (i = -1; i < 11; i++) {
       currentYear = decadeStart + i;
 
@@ -265,7 +270,7 @@
                   classAttr + '>' + currentYear + '</a>';
     }
 
-    $years = this.$picker.find('.datepicker-years')
+    $years = this.$picker.find('.datepicker-years');
     $years.find('th:eq(1) a').text(decadeStart + '-' + (decadeStart + 9));
     $years.find('td').html(html);
 
@@ -304,8 +309,8 @@
   };
 
   Datepicker.prototype._bindEvent = function(category, $el, event, handler) {
-    this.events || (this.events = {});
-    this.events[category] || (this.events[category] = []);
+    this.events = this.events || {};
+    this.events[category] = this.events[category] || [];
 
     $el.on(event, handler);
     this.events[category].push([$el, event, handler]);
@@ -364,14 +369,14 @@
       if (!parts[index]) { return; }
 
       if (formatPart === 'dd' || formatPart === 'd') {
-        date.setDate(parseInt(parts[index]));
+        date.setDate(parseInt(parts[index], 10));
       } else if (formatPart === 'mm' || formatPart === 'm') {
-        date.setMonth(parseInt(parts[index]) - 1);
+        date.setMonth(parseInt(parts[index], 10) - 1);
       } else if (formatPart === 'yyyy' || formatPart === 'yy') {
         if (parts[index].length === 4) {
-          date.setFullYear(parseInt(parts[index]));
+          date.setFullYear(parseInt(parts[index], 10));
         } else {
-          date.setFullYear(parseInt('20' + parts[index].slice(-2)));
+          date.setFullYear(parseInt('20' + parts[index].slice(-2), 10));
         }
       }
     });
