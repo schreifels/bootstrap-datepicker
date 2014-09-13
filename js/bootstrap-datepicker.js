@@ -30,34 +30,33 @@
     var initialDate;
 
     this.$element = $(element);
-    this.$picker  = $(template).appendTo('body');
+    this.$input   = this.$element.is('input') ? this.$element : this.$element.find('input');
+    this.$input   = this.$input.length === 0 ? null : this.$input
     this.$addOn   = this.$element.is('.input-group') ? this.$element.find('.input-group-addon') : null;
-    this.isInput  = this.$element.is('input');
+    this.$picker  = $(template).appendTo('body');
 
     this.format    = parseFormat(options.format);
     this.weekStart = options.weekStart;
     this.weekEnd   = this.weekStart === 0 ? 6 : this.weekStart - 1;
 
-    if (this.isInput) { initialDate = this.$element.prop('value'); }
-    if (this.$addOn)  { initialDate = this.$element.find('input').prop('value'); }
-    if (!initialDate) { initialDate = options.date; }
+    initialDate = this.$input ? this.$input.val() : options.date;
     this.setDate(initialDate ? parseDate(initialDate, this.format) : new Date(), true);
 
     this._renderDaysOfWeek();
     this.setMode('days');
 
     this.$picker.on('click', $.proxy(this._click, this));
-    if (this.isInput) {
-      this._bindEvent('alwaysBound', this.$element, 'focus', $.proxy(this.show, this));
-      this._bindEvent('alwaysBound', this.$element, 'keyup', $.proxy(function(e) {
+    if (this.$input) {
+      this._bindEvent('alwaysBound', this.$input, 'keyup', $.proxy(function(e) {
         this.setDate(parseDate(e.target.value, this.format), true);
       }, this));
-    } else {
       if (this.$addOn) {
         this._bindEvent('alwaysBound', this.$addOn, 'click', $.proxy(this.show, this));
       } else {
-        this._bindEvent('alwaysBound', this.$element, 'click', $.proxy(this.show, this));
+        this._bindEvent('alwaysBound', this.$input, 'focus', $.proxy(this.show, this));
       }
+    } else {
+      this._bindEvent('alwaysBound', this.$element, 'click', $.proxy(this.show, this));
     }
   };
 
@@ -78,8 +77,8 @@
         this.hide();
       }
     }, this));
-    if (this.isInput) {
-      this._bindEvent('boundWhenShown', this.$element, 'keydown', $.proxy(function(ev) {
+    if (this.$input && !this.$addOn) {
+      this._bindEvent('boundWhenShown', this.$input, 'keydown', $.proxy(function(ev) {
         if (ev.which === 9 || ev.which === 27) { this.hide(); } // tab or escape
       }, this));
     }
@@ -115,10 +114,8 @@
 
     if (!skipFieldUpdate) {
       formatted = formatDate(this.date, this.format);
-      if (this.$addOn) {
-        this.$element.find('input').prop('value', formatted);
-      } else if (this.isInput) {
-        this.$element.val(formatted);
+      if (this.$input) {
+        this.$input.val(formatted);
       } else {
         this.$element.data('date-string', formatted);
       }
