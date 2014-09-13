@@ -99,6 +99,8 @@
   Datepicker.prototype.setDate = function(newDate, skipFieldUpdate) {
     var formatted, newViewport = {};
 
+    if (this.date && this.date.getTime() === newDate.getTime()) { return; }
+
     newViewport = {
       month: (!this.date || this.date.getMonth()    !== newDate.getMonth()    || this.viewport.month !== newDate.getMonth())    ? newDate.getMonth() : null,
       year:  (!this.date || this.date.getFullYear() !== newDate.getFullYear() || this.viewport.year  !== newDate.getFullYear()) ? newDate.getFullYear() : null
