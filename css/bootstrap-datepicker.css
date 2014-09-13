@@ -53,7 +53,7 @@
   color: #ccc;
 }
 
-.datepicker a.datepicker-active {
+.datepicker a.datepicker-selected {
   color: #fff;
   border-radius: 4px;
   background: #006dcc;
