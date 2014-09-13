@@ -1,0 +1,13 @@
+body { background: #fafafa; }
+
+h1 { display: inline; margin: 0; font-size: 1.7em; }
+h1 + a { white-space: nowrap; }
+h2 { font-size: 1.5em; margin: 1.5em 0 0.5em 0; }
+
+.container { margin: 5% auto; }
+.content { margin-top: 10px; padding: 15px; background: #fff; }
+
+.input-group, .form-control { max-width: 200px; }
+.input-group { margin: 0 0 10px; }
+.input-group-addon { padding: 0; }
+.input-group a { display: block; color: #000; text-decoration: none; padding: 6px 12px; }

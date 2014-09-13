@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <title>Bootstrap Datepicker Demo</title>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v3.2.0/dist/css/bootstrap.css" type="text/css">
+  <link rel="stylesheet" href="style.css" type="text/css">
+
+  <link rel="stylesheet" href="https://rawgit.com/schreifels/bootstrap-datepicker/master/css/bootstrap-datepicker.css" type="text/css">
+  <script type="text/javascript" src="https://rawgit.com/schreifels/bootstrap-datepicker/master/js/bootstrap-datepicker.js"></script>
+
+  <!-- <link rel="stylesheet" href="../bootstrap-datepicker/css/bootstrap-datepicker.css" type="text/css"> -->
+  <!-- <script type="text/javascript" src="../bootstrap-datepicker/js/bootstrap-datepicker.js"></script> -->
+</head>
+<body>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h1>bootstrap-datepicker demo</h1> <a href="https://github.com/schreifels/bootstrap-datepicker">(source on Github)</a>
+      <div class="content">
+        <p>Tip: This page logs bootstrap-datepicker events to your browser's console.</p>
+
+        <h2>Options as an argument</h2>
+        <p><input type="text" value="09-05-2014" class="form-control" id="datepicker1"></p>
+        <pre><code>// &lt;input type="text" value="09-05-2014" class="form-control" id="datepicker1"&gt;
+
+$('#datepicker1').datepicker({ format: 'mm-dd-yyyy' });</code></pre>
+
+        <h2>Options in data attributes</h2>
+        <p><input type="text" class="form-control" id="datepicker2" data-week-start="1" data-format="m/d/yy"></p>
+        <pre><code>// &lt;input type="text" class="form-control" id="datepicker2" data-week-start="1" data-format="m/d/yy"&gt;
+
+$('#datepicker2').datepicker();</code></pre>
+
+        <h2>Attached to element</h2>
+        <p><a href="#" id="datepicker3">Select your birthday</a> <span id="datepicker3-target"></span></p>
+        <pre><code>// &lt;a href="#" id="datepicker3"&gt;Select your birthday&lt;/a&gt; &lt;span id="datepicker3-target"&gt;&lt;/span&gt;
+
+var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+$('#datepicker3').datepicker().on('dateChanged.bs.datepicker', function(e) {
+  $('#datepicker3-target').text(
+    '(It seems unlikely that you were born on ' +
+    months[e.date.getMonth()] + ' ' + e.date.getDate() + ', ' + e.date.getFullYear() +
+    ', just ' + Math.floor((new Date().getTime() - e.date.getTime()) / 86400000) + ' days ago!)'
+  );
+});</code></pre>
+
+        <h2>Component</h2>
+        <div class="input-group" id="datepicker4" data-format="yyyy-mm-dd">
+          <input type="text" value="1999-12-31" class="form-control">
+          <span class="input-group-addon"><a href="#" class="glyphicon glyphicon-calendar"></a></span>
+        </div>
+        <pre><code>// &lt;div class="input-group" id="datepicker4" data-format="yyyy-mm-dd"&gt;
+//   &lt;input type="text" value="1999-12-31" class="form-control" readonly=""&gt;
+//   &lt;span class="input-group-addon"&gt;&lt;a href="#" class="glyphicon glyphicon-calendar"&gt;&lt;/a&gt;&lt;/span&gt;
+// &lt;/div&gt;
+
+$('#datepicker4').datepicker();</code></pre>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(function() {
+  $('#datepicker1, #datepicker2, #datepicker3, #datepicker4').
+    on('shown.bs.datepicker hidden.bs.datepicker dateChanged.bs.datepicker', function(e) {
+      console.log('#' + e.target.id + ' triggered: ' + e.type + '.' + e.namespace +
+        (e.date ? ' { date: ' + e.date + ' }' : ''));
+    });
+
+  $('#datepicker1').datepicker({ format: 'mm-dd-yyyy' });
+
+  $('#datepicker2').datepicker();
+
+  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  $('#datepicker3').datepicker().on('dateChanged.bs.datepicker', function(e) {
+    $('#datepicker3-target').text(
+      '(It seems unlikely that you were born on ' +
+      months[e.date.getMonth()] + ' ' + e.date.getDate() + ', ' + e.date.getFullYear() +
+      ', just ' + Math.floor((new Date().getTime() - e.date.getTime()) / 86400000) + ' days ago!)'
+    );
+  });
+
+  $('#datepicker4').datepicker();
+});
+</script>
+
+</body>
+</html>
