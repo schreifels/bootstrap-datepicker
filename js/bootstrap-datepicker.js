@@ -317,14 +317,16 @@
   // jQuery plugin definition
   //////////////////////////////////////////////////////////////////////////////
 
-  $.fn.datepicker = function(option, val) {
+  $.fn.datepicker = function(option) {
+    var funcArgs = Array.prototype.slice.call(arguments, 1);
+
     return this.each(function() {
       var $this = $(this), data = $this.data('bs.datepicker'), options;
       if (!data) {
         options = $.extend({}, defaults, $this.data(), typeof option === 'object' && option);
         $this.data('bs.datepicker', (data = new Datepicker(this, options)));
       }
-      if (typeof option === 'string') { data[option](val); }
+      if (typeof option === 'string') { data[option].apply(data, funcArgs); }
     });
   };
 
