@@ -1,7 +1,7 @@
 /* ==========================================================================
- * bootstrap-datepicker.js
+ * bootstrap-datepicker.js v1.0.0
  * A simple, lightweight Bootstrap-powered datepicker.
- * https://github.com/schreifels/removeable-bootstrap-datepicker
+ * https://github.com/schreifels/bootstrap-datepicker
  * ==========================================================================
  * By Mike Schreifels, based on Stefan Petre's http://www.eyecon.ro/bootstrap-datepicker/
  *

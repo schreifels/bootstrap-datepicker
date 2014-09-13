@@ -1,6 +1,6 @@
 # bootstrap-datepicker
 
-bootstrap-datepicker is a lightweight, idiomatic library that covers the most common datepicker use cases.
+bootstrap-datepicker is a lightweight, idiomatic library that covers the most common datepicker use cases. It is compatible with Bootstrap 3 and jQuery 2.x.
 
 The code is about 8 kb minified and 3 kb minified and gzipped. Versions are released according to [Semantic Versioning](http://semver.org/).
 
