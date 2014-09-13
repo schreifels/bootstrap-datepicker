@@ -195,8 +195,7 @@
     currentDay = new Date(this.viewport.year, this.viewport.month, 0, 0, 0, 0, 0); // day 0 is the last day of the previous month
     currentDay.setDate(currentDay.getDate() - ((currentDay.getDay() + 7 - this.weekStart) % 7));
 
-    lastDay = new Date(this.viewport.year, this.viewport.month + 1, 0, 0, 0, 0, 0); // day 0 is the last day of the previous month
-    lastDay.setDate(lastDay.getDate() + (((this.weekEnd + 7 - lastDay.getDay()) % 7) || 7));
+    lastDay = new Date(currentDay).setDate(currentDay.getDate() + 41); // always show 6 weeks
 
     html = '';
     while (currentDay <= lastDay) {
