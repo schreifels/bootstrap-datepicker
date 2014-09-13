@@ -38,8 +38,11 @@
     this.weekStart = options.weekStart;
     this.weekEnd   = this.weekStart === 0 ? 6 : this.weekStart - 1;
 
-    initialDate = this.isInput ? this.$element.prop('value') : options.date;
+    if (this.isInput) { initialDate = this.$element.prop('value'); }
+    if (this.$addOn)  { initialDate = this.$element.find('input').prop('value'); }
+    if (!initialDate) { initialDate = options.date; }
     this.setDate(initialDate ? parseDate(initialDate, this.format) : new Date(), true);
+
     this._renderDaysOfWeek();
     this.setMode('days');
 
