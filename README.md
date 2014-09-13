@@ -57,11 +57,11 @@ Name              | Type     | Default      | Description
 
 ## Events
 
-Event                            | Description
--------------------------------- | -----------
-```shown.bs.datepicker```        | Fired after the datepicker has been displayed to the user.
-```hidden.bs.datepicker```       | Fired after the datepicker has been hidden from the user.
-```dateSet.bs.datepicker```      | Fired after the user enters or selects a date. The event contains ```date```, which is the newly set Date object.
+Event                           | Description
+------------------------------- | -----------
+```shown.bs.datepicker```       | Fired after the datepicker has been displayed to the user.
+```hidden.bs.datepicker```      | Fired after the datepicker has been hidden from the user.
+```dateChanged.bs.datepicker``` | Fired after the user enters or selects a date. The event contains ```date```, which is the newly set Date object.
 
 ## Retrieving the selected date
 
@@ -74,7 +74,7 @@ $('#datepicker-element').data('date')
 You can also get it from the event:
 
 ```
-$('#datepicker-element').on('dateSet.bs.datepicker', function(e) {
+$('#datepicker-element').on('dateChanged.bs.datepicker', function(e) {
   console.log('The user just selected date: ' + e.date);
 });
 ```

@@ -122,7 +122,7 @@
     }
 
     this.$element.data('date', this.date)
-    this.$element.trigger({ type: 'dateSet.bs.datepicker', date: this.date });
+    this.$element.trigger({ type: 'dateChanged.bs.datepicker', date: this.date });
   };
 
   Datepicker.prototype.setViewport = function(newViewport) {
