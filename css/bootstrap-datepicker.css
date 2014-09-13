@@ -22,6 +22,10 @@
   padding: 4px;
 }
 
+.datepicker table {
+  width: 190px;
+}
+
 .datepicker tbody > tr > td,
 .datepicker thead > tr > th {
   text-align: center;
@@ -55,10 +59,16 @@
   background: #006dcc;
 }
 
+.datepicker .datepicker-months td,
+.datepicker .datepicker-years td {
+  padding: 0 1px;
+}
+
 .datepicker .datepicker-months tbody a,
 .datepicker .datepicker-years tbody a {
   float: left;
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
+  width: 45px;
+  height: 45px;
+  line-height: 37px;
+  margin: 1px;
 }

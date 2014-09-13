@@ -16,3 +16,4 @@
 * More semantic markup (using anchors for links, etc)
 * CSS classes are namespaced with "datepicker-"
 * Logic has been simplified with the use of ```data``` attributes
+* Supports Bootstrap 3

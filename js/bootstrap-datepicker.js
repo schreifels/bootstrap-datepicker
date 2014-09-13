@@ -97,11 +97,11 @@
   };
 
   Datepicker.prototype.setDate = function(newDate, skipFieldUpdate) {
-    var formatted, newViewport;
+    var formatted, newViewport = {};
 
     newViewport = {
-      month: (!this.date || this.date.getMonth()    !== newDate.getMonth())    ? newDate.getMonth() : null,
-      year:  (!this.date || this.date.getFullYear() !== newDate.getFullYear()) ? newDate.getFullYear() : null
+      month: (!this.date || this.date.getMonth()    !== newDate.getMonth()    || this.viewport.month !== newDate.getMonth())    ? newDate.getMonth() : null,
+      year:  (!this.date || this.date.getFullYear() !== newDate.getFullYear() || this.viewport.year  !== newDate.getFullYear()) ? newDate.getFullYear() : null
     };
 
     this.date = newDate;
@@ -187,30 +187,28 @@
   Datepicker.prototype._renderDays = function() {
     var today = this.date.getTime(),
         thisYear = this.date.getFullYear(),
-        currentDay, nextMonth, html, className, months,
+        currentDay, lastDay, html, className, months,
         currentYear, currentMonth, currentDate;
 
     this.$picker.find('.datepicker-days th:eq(1) a').text(dictionary.months[this.viewport.month] + ' ' + this.viewport.year);
 
     currentDay = new Date(this.viewport.year, this.viewport.month, 0, 0, 0, 0, 0); // day 0 is the last day of the previous month
-    currentDay.setDate(currentDay.getDate() - ((currentDay.getDay() - this.weekStart + 7) % 7));
+    currentDay.setDate(currentDay.getDate() - ((currentDay.getDay() + 7 - this.weekStart) % 7));
 
-    nextMonth = new Date(currentDay);
-    nextMonth.setDate(nextMonth.getDate() + 42);
-    nextMonth = nextMonth.getTime();
+    lastDay = new Date(this.viewport.year, this.viewport.month + 1, 0, 0, 0, 0, 0); // day 0 is the last day of the previous month
+    lastDay.setDate(lastDay.getDate() + (((this.weekEnd + 7 - lastDay.getDay()) % 7) || 7));
 
     html = '';
-    while(currentDay.getTime() < nextMonth) {
+    while (currentDay <= lastDay) {
       currentYear  = currentDay.getFullYear();
       currentMonth = currentDay.getMonth();
       currentDate  = currentDay.getDate();
       className    = '';
 
-      if (currentDay.getDay() === this.weekStart) { html += '<tr>'; }
-      if (currentMonth !== this.viewport.month || currentYear !== this.viewport.year) {
-        className += 'datepicker-outside ';
-      }
+      if (currentMonth !== this.viewport.month) { className += 'datepicker-outside '; }
       if (currentDay.getTime() === today) { className += 'datepicker-active '; }
+
+      if (currentDay.getDay() === this.weekStart) { html += '<tr>'; }
       html += (
         '<td>' +
           '<a href="#"' +
@@ -223,6 +221,7 @@
         '</td>'
       );
       if (currentDay.getDay() === this.weekEnd) { html += '</tr>'; }
+
       currentDay.setDate(currentDate + 1);
     }
 
@@ -245,21 +244,23 @@
   };
 
   Datepicker.prototype._renderYears = function() {
-    var i,
+    var i, classAttr, currentYear,
         html        = '',
-        currentYear = parseInt(this.viewport.year / 10) * 10, // start of decade
+        decadeStart = parseInt(this.viewport.year / 10) * 10,
         $years      = this.$picker.find('.datepicker-years'),
         thisYear    = this.date.getFullYear();
 
-    $years.find('th:eq(1) a').text(currentYear + '-' + (currentYear + 9));
+    $years.find('th:eq(1) a').text(decadeStart + '-' + (decadeStart + 9));
 
-    for (i = 0; i < 10; i++) {
+    for (i = -1; i < 11; i++) {
+      currentYear = decadeStart + i
+      classAttr = (i === -1 || i === 10)     ? ' class="datepicker-outside"' : ''
+      classAttr = (thisYear === currentYear) ? ' class="datepicker-active"'  : classAttr
+
       html += '<a href="#"' +
-                  (thisYear === currentYear ? ' class="datepicker-active"' : '') +
                   ' data-handler="setViewport"' +
                   ' data-year="' + currentYear + '"' +
-                  '>' + currentYear + '</a>';
-      currentYear++;
+                  classAttr + '>' + currentYear + '</a>';
     }
     $years.find('td').html(html);
 
