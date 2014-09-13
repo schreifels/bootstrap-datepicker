@@ -117,10 +117,11 @@
       } else if (this.isInput) {
         this.$element.val(formatted);
       } else {
-        this.$element.data('date', formatted);
+        this.$element.data('date-string', formatted);
       }
     }
 
+    this.$element.data('date', this.date)
     this.$element.trigger({ type: 'dateSet.bs.datepicker', date: this.date });
   };
 
