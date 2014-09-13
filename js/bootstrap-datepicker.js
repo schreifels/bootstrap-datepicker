@@ -77,7 +77,7 @@
     }, this));
     if (this.isInput) {
       this._bindEvent('boundWhenShown', this.$element, 'keydown', $.proxy(function(ev) {
-        if (ev.which === 9) { this.hide(); }
+        if (ev.which === 9 || ev.which === 27) { this.hide(); } // tab or escape
       }, this));
     }
 
